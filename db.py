@@ -22,6 +22,7 @@ class Game(db.Model):
     """
     teams = db.Column(db.PickleType)
     num_tickets = db.Column(db.Integer, nullable=False)
+    tickets = db.relationship("Ticket", cascade="delete")
     # Link to the User tbale using association table 
     users_attending = db.relationship("User", secondary=game_user_association, back_populates="past_games")
 
@@ -43,6 +44,7 @@ class User(db.Model):
     username = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False)
     balance = db.Column(db.Integer, nullable=False)
+    tickets = db.relationship("Ticket", cascade="delete")
     # Link to the Game table using assocaiton table 
     past_games = db.relationship("Game", secondary=game_user_association, back_populates="users_attending")
 
@@ -55,3 +57,15 @@ class User(db.Model):
         self.balance = kwargs.get("balance", 0)
 
 
+class Ticket(db.Model):
+    __tablename__ = "ticket"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey("game.id"), nullable=False)
+
+    def __init__(self, **kwargs):
+        """
+        Initialize a Ticket object 
+        """
+        self.user_id = kwargs.get("user_id")
+        self.game_id = kwargs.get("game_id")
