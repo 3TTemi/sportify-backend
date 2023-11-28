@@ -69,3 +69,7 @@ class Ticket(db.Model):
         """
         self.user_id = kwargs.get("user_id")
         self.game_id = kwargs.get("game_id")
+
+"""
+Test code
+"""
