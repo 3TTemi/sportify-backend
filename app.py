@@ -37,3 +37,14 @@ def base():
     """
     games = [g.serialize() for g in Game.query.all()]
     return success_response({"games": games})
+
+
+@app.route("/games/<int:game_id>/")
+def get_game(game_id):
+    """
+    Endpoint that returns the game with game id 'game_id'
+    """
+    game = Game.query.filter_by(id=game_id).first()
+    if game is None:
+        return failure_response("Game not found!")
+    return success_response(game.serialize())
