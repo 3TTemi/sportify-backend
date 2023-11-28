@@ -29,3 +29,11 @@ def success_response(data, code=200):
 def failure_response(message, code=404):
     return json.dumps({"error":message}), code
 
+@app.route("/")
+@app.route("/games/") # GET: Get all games
+def base():
+    """
+    Endpoint that returns all the games stored in the database
+    """
+    games = [g.serialize() for g in Game.query.all()]
+    return success_response({"games": games})
