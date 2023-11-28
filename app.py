@@ -29,6 +29,7 @@ def success_response(data, code=200):
 def failure_response(message, code=404):
     return json.dumps({"error":message}), code
 
+# General Search Route
 @app.route("/")
 @app.route("/games/") # GET: Get all games
 def base():
@@ -38,13 +39,26 @@ def base():
     games = [g.serialize() for g in Game.query.all()]
     return success_response({"games": games})
 
+# Specified Search Route
+@app.route("/games/<int:identifier>/") #TODO: Work on retrieving strings from urls
+def get_game(identifier): # GET: Get all games that share a given quality (mens, womens, basketball, etc.) 
+    """
+    Endpoint that returns all the games that can be indentified by a given identifier
+    """
 
-@app.route("/games/<int:game_id>/")
-def get_game(game_id):
-    """
-    Endpoint that returns the game with game id 'game_id'
-    """
-    game = Game.query.filter_by(id=game_id).first()
+    # Dictionary representing groups of possible identifiers client could use
+    identities = {
+        "sports": {"basketball", "baseball", "football", "soccer", "ice hockey", "tennis"},
+        "sex": {"mens", "womens"}
+    }
+    
+    group = None # Early declaration (scope conscious) 
+    for id in identities:
+        if id.get(identifier) is not None:
+           group = id
+           group = group.strip() # Removes the quotations of the key string
+    
+    game = Game.query.filter_by(group=identifier).first()
     if game is None:
         return failure_response("Game not found!")
     return success_response(game.serialize())
