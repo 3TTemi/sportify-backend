@@ -184,6 +184,22 @@ def get_user(user_id):
 
     return success_response({"user":user.serialize()})
 
+@app.route("/user/<int:user_id>", methods=["POST"]) # POST: Update user username
+def update_username(user_id):
+    """
+    Endpoint that changes an existing user's usersname and returns updated user information 
+    """ 
+    new_username = request.data.get("username")
+
+    user = User.query.filter_by(id=user_id).first()
+    if user is None: # If the user is not in the database
+        failure_response("User not found!")
+
+    user.username = new_username
+
+    # TODO: Verify if this truly exchanges a user's old username with the new one, of it this creates another user with the new username
+    db.session.add(user)
+    db.commit()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
