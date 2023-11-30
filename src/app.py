@@ -7,6 +7,9 @@ from db import db
 
 from flask import request
 from flask import Flask
+from flask import Flask
+from datetime import datetime 
+
 
 import os
 
@@ -39,29 +42,41 @@ def base():
     games = [g.serialize() for g in Game.query.all()]
     return success_response({"games": games})
 
-# Specified Search Route
-@app.route("/games/<int:identifier>/") #TODO: Work on retrieving strings from urls
-def get_game(identifier): # GET: Get all games that share a given quality (mens, womens, basketball, etc.) 
-    """
-    Endpoint that returns all the games that can be indentified by a given identifier
-    """
 
-    # Dictionary representing groups of possible identifiers client could use
-    identities = {
-        "sports": {"basketball", "baseball", "football", "soccer", "ice hockey", "tennis"},
-        "sex": {"mens", "womens"}
-    }
-    
-    group = None # Early declaration (scope conscious) 
-    for id in identities:
-        if id.get(identifier) is not None:
-           group = id
-           group = group.strip() # Removes the quotations of the key string
-    
-    game = Game.query.filter_by(group=identifier).first()
+@app.route("/games/<int:game_id>/")
+def get_specific_game(game_id):
+    """
+    Endpoint that returns the game with game id 'game_id'
+    """
+    game = Game.query.filter_by(id=game_id).first()
     if game is None:
         return failure_response("Game not found!")
     return success_response(game.serialize())
+
+
+# # Specified Search Route
+# @app.route("/games/<int:identifier>/") #TODO: Work on retrieving strings from urls
+# def get_game(identifier): # GET: Get all games that share a given quality (mens, womens, basketball, etc.) 
+#     """
+#     Endpoint that returns all the games that can be indentified by a given identifier
+#     """
+
+#     # Dictionary representing groups of possible identifiers client could use
+#     identities = {
+#         "sports": {"basketball", "baseball", "football", "soccer", "ice hockey", "tennis"},
+#         "sex": {"mens", "womens"}
+#     }
+    
+#     group = None # Early declaration (scope conscious) 
+#     for id in identities:
+#         if id.get(identifier) is not None:
+#            group = id
+#            group = group.strip() # Removes the quotations of the key string
+    
+#     game = Game.query.filter_by(group=identifier).first()
+#     if game is None:
+#         return failure_response("Game not found!")
+#     return success_response(game.serialize())
 
 @app.route("/games/", methods=["POST"]) # POST: Insert game into database
 def create_game():
@@ -79,6 +94,11 @@ def create_game():
     sex = body.get("sex")
     if sex is None:
         failure_response("You did not enter the relevant sexes!", 400)
+
+    date_time = datetime.strptime(body.get('date_time'), '%Y-%m-%d %H:%M:%S')
+    if date_time is None: 
+        failure_response("You did not enter a date for the game!", 400)
+
 
     # Checks the request body for the location of this game 
     location = body.get("location")
@@ -99,6 +119,7 @@ def create_game():
     new_game = Game(
         sport=sport,
         sex=sex,
+        date_time = date_time,
         location=location,
         teams=teams,
         num_tickets=num_tickets
@@ -108,3 +129,19 @@ def create_game():
     db.session.add(new_game)
     db.session.commit()
     return success_response(new_game.serialize(), 201)
+
+@app.route("/games/<int:game_id>/", methods=["DELETE"])
+def delete_game(game_id):
+    """
+    Endpoint for deleting a game by id
+    """
+    game = Game.query.filter_by(id=game_id).first()
+    if game is None:
+        return failure_response("Game not found!")
+    db.session.delete(game)
+    db.session.commit()
+    return success_response(game.serialize())
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000, debug=True)

@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime 
 
 db = SQLAlchemy()
 
@@ -15,8 +16,8 @@ class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     sport = db.Column(db.String, nullable=False)
     sex = db.Column(db.String, nullable=False)
-    #date_time = db.Column(db.DateTime, nullable=False)
-    location = db.Column(db.Stirng, nullable=False)
+    location = db.Column(db.String, nullable=False)
+    date_time = db.Column(db.DateTime, nullable=False)
     """
     PickleType allows us to use tuple as dattpe (automatically serializes and deserializaes for databse) 
     """
@@ -33,10 +34,28 @@ class Game(db.Model):
         """
         self.sport = kwargs.get("sport", "")
         self.sex = kwargs.get("sex", "")
-        #self.date_time = kwargs.get("date_time", "")
+        self.date_time = kwargs.get("date_time", "")
         self.location =kwargs.get("location", "")
-        self.teams =kwargs.get("date_time", ("",""))
+        self.teams = kwargs.get("teams", ("",""))
         self.num_tickets = kwargs.get("num_tickets", 0)
+
+    def serialize(self):
+        """
+        Serialize Game Object
+        """
+        return {
+            "id": self.id,
+            "sport": self.sport,
+            "sex": self.sex,
+            # "date_time": self.date_time,
+            # Converting date type object in database to stirng format to serialize 
+            "date_time": self.date_time.strftime('%Y-%m-%d %H:%M:%S'),
+            "location": self.location,
+            "teams": self.teams,
+            "num_tickets": self.num_tickets,
+            "tickets":  [t.simple_serialize() for t in self.tickets],
+            "users_attending":  [u.simple_serialize() for u in self.users_attending]
+        }
 
 class User(db.Model):
     __tablename__ = "user"
@@ -56,6 +75,17 @@ class User(db.Model):
         self.email = kwargs.get("email", "")
         self.balance = kwargs.get("balance", 0)
 
+    def simple_serialize(self):
+        """
+        Serliaze a user object without the courses field
+        """
+        return {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "balance": self.balance,
+        }
+
 
 class Ticket(db.Model):
     __tablename__ = "ticket"
@@ -69,6 +99,16 @@ class Ticket(db.Model):
         """
         self.user_id = kwargs.get("user_id")
         self.game_id = kwargs.get("game_id")
+
+    def simple_serialize(self):
+        """
+        Serliaze a ticket object (
+        """
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "game_id": self.game_id
+        }
 
 """
 Test code
