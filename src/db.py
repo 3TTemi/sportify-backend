@@ -15,16 +15,20 @@ class Game(db.Model):
     _tablename__ = "game"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     sport = db.Column(db.String, nullable=False)
-    gender = db.Column(db.String, nullable=False)
     date_time = db.Column(db.DateTime, nullable=False)
     location = db.Column(db.String, nullable=False)
+    sex = db.Column(db.String, nullable=False)
+    location = db.Column(db.String, nullable=False)
+    date_time = db.Column(db.DateTime, nullable=False)
+
     """
     PickleType allows us to use tuple as dattpe (automatically serializes and deserializaes for databse) 
     """
     teams = db.Column(db.PickleType)
     num_tickets = db.Column(db.Integer, nullable=False)
     tickets = db.relationship("Ticket", cascade="delete")
-    # Link to the User tbale using association table 
+
+    # Link to the User table using association table 
     users_attending = db.relationship("User", secondary=game_user_association, back_populates="past_games")
 
 
@@ -33,7 +37,7 @@ class Game(db.Model):
         Initialize a Game Object 
         """
         self.sport = kwargs.get("sport", "")
-        self.gender = kwargs.get("gender", "")
+        self.sex = kwargs.get("sex", "")
         self.date_time = kwargs.get("date_time", "")
         self.location =kwargs.get("location", "")
         self.teams = kwargs.get("teams", ("",""))
@@ -46,7 +50,7 @@ class Game(db.Model):
         return {
             "id": self.id,
             "sport": self.sport,
-            "gender": self.gender,
+            "sex": self.sex,
             # "date_time": self.date_time,
             # Converting date type object in database to stirng format to serialize 
             "date_time": self.date_time.strftime('%Y-%m-%d %H:%M:%S'),
