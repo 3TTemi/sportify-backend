@@ -80,7 +80,7 @@ def get_game(identifier): # GET: Get all games that share a given quality (mens,
         games = [g.serialize() for g in Game.query.filter_by(sex=identifier, sold_out=False).all()]
 
     # TODO: Implement games list for specific times/dates, for specific teams, and for those that still have remaining tickets 
-    
+
     return success_response({f"{identifier} games":games})
 
 @app.route("/games/", methods=["POST"]) # POST: Insert game into database
@@ -109,10 +109,15 @@ def create_game():
     if location is None:
         failure_response("You did not enter a location!", 400)
 
-    # Checks the request body for the competing teams of this game 
-    teams = body.get("teams")
-    if teams is None:
-        failure_response("You did not enter the competing teams!", 400)
+    # Checks the request body for the home team of this game 
+    home_team = body.get("home_team")
+    if home_team is None:
+        failure_response("You did not enter the home team!", 400)
+
+    # Checks the request body for the away team of this game 
+    away_team = body.get("away_team")
+    if away_team is None:
+        failure_response("You did not enter the away team!", 400)
 
     # Checks the request body for the number of tickets available for this game 
     num_tickets = body.get("num_tickets")
