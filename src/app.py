@@ -31,14 +31,12 @@ def success_response(data, code=200):
 def failure_response(message, code=404):
     return json.dumps({"error":message}), code
 
-
 # Dictionary representing groups of possible identifiers client could use
 options = {
     "sport": {"basketball", "baseball", "football", "soccer", "ice hockey", "tennis"},
     "sex": {"mens", "womens", "unisex"},
     "location": {"Schoellkopf Field, Jessup field"}
 }
-
 
 @app.route("/")
 @app.route("/games/") # GET: Get all games
@@ -69,6 +67,32 @@ def get_game(identifier): # GET: Get all games that share a given quality (mens,
     group = None # Early declaration (scope conscious) 
     for id in options:
          for x in options[id]:
+            if identifier == x:
+                group = id
+                group = group.strip() # Removes the quotations of the key string
+    
+    # FIXME: Not efficient at all, there has to be a better way to do this
+    if group == "sport":
+        games = [g.serialize() for g in Game.query.filter_by(sport=identifier, sold_out=False).all()]
+    if group == "location":
+        games = [g.serialize() for g in Game.query.filter_by(location=identifier, sold_out=False).all()]
+    if group == "sex":
+        games = [g.serialize() for g in Game.query.filter_by(sex=identifier, sold_out=False).all()]
+
+    # TODO: Implement games list for specific times/dates, for specific teams, and for those that still have remaining tickets 
+    """
+    Endpoint that returns all the games that can be indentified by a given identifier
+    """
+
+    # Dictionary representing groups of possible identifiers client could use
+    identities = {
+        "sport": {"basketball", "baseball", "football", "soccer", "ice hockey", "tennis"},
+        "sex": {"mens", "womens"}
+    }
+    
+    group = None # Early declaration (scope conscious) 
+    for id in identities:
+         for x in identities[id]:
             if identifier == x:
                 group = id
                 group = group.strip() # Removes the quotations of the key string
