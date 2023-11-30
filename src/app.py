@@ -32,6 +32,14 @@ def failure_response(message, code=404):
     return json.dumps({"error":message}), code
 
 
+# Dictionary representing groups of possible identifiers client could use
+options = {
+    "sport": {"basketball", "baseball", "football", "soccer", "ice hockey", "tennis"},
+    "sex": {"mens", "womens", "unisex"},
+    "location": {"Schoellkopf Field, Jessup field"}
+}
+
+
 @app.route("/")
 @app.route("/games/") # GET: Get all games
 def base():
@@ -58,16 +66,9 @@ def get_game(identifier): # GET: Get all games that share a given quality (mens,
     """
     Endpoint that returns all the games that can be identified by a given identifier
     """
-
-    # Dictionary representing groups of possible identifiers client could use
-    identities = {
-        "sport": {"basketball", "baseball", "football", "soccer", "ice hockey", "tennis"},
-        "sex": {"mens", "womens"}
-    }
-    
     group = None # Early declaration (scope conscious) 
-    for id in identities:
-         for x in identities[id]:
+    for id in options:
+         for x in options[id]:
             if identifier == x:
                 group = id
                 group = group.strip() # Removes the quotations of the key string
