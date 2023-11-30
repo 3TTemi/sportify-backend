@@ -54,29 +54,6 @@ def get_specific_game(game_id):
     return success_response(game.serialize())
 
 
-@app.route("/games/", methods=["POST"])  
-def create_game():
-    """
-    Endpoint for creating a new game
-    """
-    body = json.loads(request.data)
-    sport = body.get('sport')
-    gender = body.get('gender')
-    # Converting String from JSON into python date time object 
-    date_time = datetime.strptime(body.get('date_time'), '%Y-%m-%d %H:%M:%S')
-    location = body.get('location')
-    teams = body.get('teams')
-    num_tickets = body.get('num_tickets')
-
-    new_game = Game(
-        sport=sport,
-        gender=gender,
-        date_time = date_time,
-        location = location,
-        teams = teams,
-        num_tickets = num_tickets
-    )
-
 # # Specified Search Route
 # @app.route("/games/<int:identifier>/") #TODO: Work on retrieving strings from urls
 # def get_game(identifier): # GET: Get all games that share a given quality (mens, womens, basketball, etc.) 
@@ -121,7 +98,6 @@ def create_game():
     date_time = datetime.strptime(body.get('date_time'), '%Y-%m-%d %H:%M:%S')
     if date_time is None: 
         failure_response("You did not enter a date for the game!", 400)
-
 
     # Checks the request body for the location of this game 
     location = body.get("location")
