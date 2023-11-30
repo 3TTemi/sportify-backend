@@ -62,3 +62,49 @@ def get_game(identifier): # GET: Get all games that share a given quality (mens,
     if game is None:
         return failure_response("Game not found!")
     return success_response(game.serialize())
+
+@app.route("/games/", methods=["POST"]) # POST: Insert game into database
+def create_game():
+    """
+    Endpoint that inserts a new game into the database
+    """
+    body = json.loads(request.data)
+    
+    # Checks the request body for the sport of this game 
+    sport = body.get("sport")
+    if sport is None:
+        failure_response("You did not enter the game's sport!", 400)
+
+    # Checks the request body for the competing sexes of this game 
+    sex = body.get("sex")
+    if sex is None:
+        failure_response("You did not enter the relevant sexes!", 400)
+
+    # Checks the request body for the location of this game 
+    location = body.get("location")
+    if location is None:
+        failure_response("You did not enter a location!", 400)
+
+    # Checks the request body for the competing teams of this game 
+    teams = body.get("teams")
+    if teams is None:
+        failure_response("You did not enter the competing teams!", 400)
+
+    # Checks the request body for the number of tickets available for this game 
+    num_tickets = body.get("num_tickets")
+    if num_tickets is None:
+        failure_response("You did not enter the amount of available tickets!", 400)
+
+    # Creates Game object
+    new_game = Game(
+        sport=sport,
+        sex=sex,
+        location=location,
+        teams=teams,
+        num_tickets=num_tickets
+    )
+
+    # Adds and fixes new Game object into database
+    db.session.add(new_game)
+    db.session.commit()
+    return success_response(new_game.serialize(), 201)

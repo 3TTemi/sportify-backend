@@ -14,8 +14,8 @@ class Game(db.Model):
     _tablename__ = "game"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     sport = db.Column(db.String, nullable=False)
-    gender = db.Column(db.String, nullable=False)
-    date_time = db.Column(db.DateTime, nullable=False)
+    sex = db.Column(db.String, nullable=False)
+    #date_time = db.Column(db.DateTime, nullable=False)
     location = db.Column(db.Stirng, nullable=False)
     """
     PickleType allows us to use tuple as dattpe (automatically serializes and deserializaes for databse) 
@@ -32,8 +32,8 @@ class Game(db.Model):
         Initialize a Game Object 
         """
         self.sport = kwargs.get("sport", "")
-        self.gender = kwargs.get("gender", "")
-        self.date_time = kwargs.get("date_time", "")
+        self.sex = kwargs.get("sex", "")
+        #self.date_time = kwargs.get("date_time", "")
         self.location =kwargs.get("location", "")
         self.teams =kwargs.get("date_time", ("",""))
         self.num_tickets = kwargs.get("num_tickets", 0)
