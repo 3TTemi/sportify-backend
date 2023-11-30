@@ -24,7 +24,7 @@ class Game(db.Model):
     teams = db.Column(db.PickleType)
     num_tickets = db.Column(db.Integer, nullable=False)
     tickets = db.relationship("Ticket", cascade="delete")
-    # Link to the User table using association table 
+    # Link to the User tbale using association table 
     users_attending = db.relationship("User", secondary=game_user_association, back_populates="past_games")
 
 
