@@ -214,9 +214,27 @@ def update_password(user_id):
 
     user.password = new_password
 
-    # TODO: Verify if this truly exchanges a user's old username with the new one, of it this creates another user with the new username
+    # TODO: Verify if this truly exchanges a user's old username with the new one, or if it this creates another user with the new username
     db.session.add(user)
     db.commit()
+
+@app.route("/user/<int:user_id>", methods=["POST"]) # POST: Update user funds
+def update_funds(user_id):
+    """
+    Endpoint that increases or decreases the amount of funds a user client has on their account
+    """
+    update = request.data.get("balance")
+    user = User.query.filter_by(id=user_id).first()
+    if user is None: # If the user is not in the database
+        failure_response("User not found!")
+
+    new_balance = user.balance + update
+    user.balance = new_balance
+
+    # TODO: Verify if this truly changes a user's current balance, or if this creates another user with the new balance
+    db.session.add(user)
+    db.commit()
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
