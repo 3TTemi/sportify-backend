@@ -32,7 +32,6 @@ def failure_response(message, code=404):
     return json.dumps({"error":message}), code
 
 
-# General Search Route
 @app.route("/")
 @app.route("/games/") # GET: Get all games
 def base():
@@ -43,7 +42,7 @@ def base():
     return success_response({"games": games})
 
 
-@app.route("/games/<int:game_id>/")
+@app.route("/games/<int:game_id>/") # GET: Get game by identifier
 def get_specific_game(game_id):
     """
     Endpoint that returns the game with game id 'game_id'
@@ -54,29 +53,36 @@ def get_specific_game(game_id):
     return success_response(game.serialize())
 
 
-# # Specified Search Route
-# @app.route("/games/<int:identifier>/") #TODO: Work on retrieving strings from urls
-# def get_game(identifier): # GET: Get all games that share a given quality (mens, womens, basketball, etc.) 
-#     """
-#     Endpoint that returns all the games that can be indentified by a given identifier
-#     """
+@app.route("/games/<string:identifier>/")
+def get_game(identifier): # GET: Get all games that share a given quality (mens, womens, basketball, etc.) 
+    """
+    Endpoint that returns all the games that can be identified by a given identifier
+    """
 
-#     # Dictionary representing groups of possible identifiers client could use
-#     identities = {
-#         "sports": {"basketball", "baseball", "football", "soccer", "ice hockey", "tennis"},
-#         "sex": {"mens", "womens"}
-#     }
+    # Dictionary representing groups of possible identifiers client could use
+    identities = {
+        "sport": {"basketball", "baseball", "football", "soccer", "ice hockey", "tennis"},
+        "sex": {"mens", "womens"}
+    }
     
-#     group = None # Early declaration (scope conscious) 
-#     for id in identities:
-#         if id.get(identifier) is not None:
-#            group = id
-#            group = group.strip() # Removes the quotations of the key string
+    group = None # Early declaration (scope conscious) 
+    for id in identities:
+         for x in identities[id]:
+            if identifier == x:
+                group = id
+                group = group.strip() # Removes the quotations of the key string
     
-#     game = Game.query.filter_by(group=identifier).first()
-#     if game is None:
-#         return failure_response("Game not found!")
-#     return success_response(game.serialize())
+    # FIXME: Not efficient at all, there has to be a better way to do this
+    if group == "sport":
+        games = [g.serialize() for g in Game.query.filter_by(sport=identifier, sold_out=False).all()]
+    if group == "location":
+        games = [g.serialize() for g in Game.query.filter_by(location=identifier, sold_out=False).all()]
+    if group == "sex":
+        games = [g.serialize() for g in Game.query.filter_by(sex=identifier, sold_out=False).all()]
+
+    # TODO: Implement games list for specific times/dates, for specific teams, and for those that still have remaining tickets 
+
+    return success_response({f"{identifier} games":games})
 
 @app.route("/games/", methods=["POST"]) # POST: Insert game into database
 def create_game():
@@ -140,6 +146,7 @@ def delete_game(game_id):
     db.session.delete(game)
     db.session.commit()
     return success_response(game.serialize())
+
 
 
 if __name__ == "__main__":

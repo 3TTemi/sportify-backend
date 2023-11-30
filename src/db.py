@@ -15,8 +15,6 @@ class Game(db.Model):
     _tablename__ = "game"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     sport = db.Column(db.String, nullable=False)
-    date_time = db.Column(db.DateTime, nullable=False)
-    location = db.Column(db.String, nullable=False)
     sex = db.Column(db.String, nullable=False)
     location = db.Column(db.String, nullable=False)
     date_time = db.Column(db.DateTime, nullable=False)
@@ -26,11 +24,11 @@ class Game(db.Model):
     """
     teams = db.Column(db.PickleType)
     num_tickets = db.Column(db.Integer, nullable=False)
+    sold_out = db.Column(db.Boolean, nullable=False, default=False)
     tickets = db.relationship("Ticket", cascade="delete")
 
     # Link to the User table using association table 
     users_attending = db.relationship("User", secondary=game_user_association, back_populates="past_games")
-
 
     def __init__(self, **kwargs):
         """
@@ -41,7 +39,7 @@ class Game(db.Model):
         self.date_time = kwargs.get("date_time", "")
         self.location =kwargs.get("location", "")
         self.teams = kwargs.get("teams", ("",""))
-        self.num_tickets = kwargs.get("num_tickets", 0)
+        self.num_tickets = kwargs.get("num_tickets") # When initializing a game, the amount of tickets remaining should never be 0 (there would be no attendees)
 
     def serialize(self):
         """
@@ -113,7 +111,3 @@ class Ticket(db.Model):
             "user_id": self.user_id,
             "game_id": self.game_id
         }
-
-"""
-Test code
-"""
