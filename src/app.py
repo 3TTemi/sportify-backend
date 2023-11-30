@@ -160,7 +160,7 @@ def create_game():
     db.session.commit()
     return success_response(new_game.serialize(), 201)
 
-@app.route("/games/<int:game_id>/", methods=["DELETE"])
+@app.route("/games/<int:game_id>/", methods=["DELETE"]) # DELETE: Delete a specific game from database
 def delete_game(game_id):
     """
     Endpoint for deleting a game by id
@@ -172,6 +172,17 @@ def delete_game(game_id):
     db.session.commit()
     return success_response(game.serialize())
 
+
+@app.route("/user/<int:user_id>") # GET: Get specific user by user id
+def get_user(user_id):
+    """
+    Endpoint that returns user with user id 'user_id'
+    """
+    user = User.query.filter_by(id=user_id).first()
+    if user is None: # If the user is not in the database
+        failure_response("User not found!")
+
+    return success_response({"user":user.serialize()})
 
 
 if __name__ == "__main__":
