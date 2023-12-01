@@ -54,8 +54,6 @@ def base():
     return success_response({"games": games})
     # return success_response({"games": current_games})
 
-
-
 @app.route("/games/<int:game_id>/") # GET: Get game by id number
 def get_specific_game(game_id):
     """
@@ -119,11 +117,6 @@ def create_game():
     if location is None:
         failure_response("You did not enter a location!", 400)
 
-    # Checks the request body for the home team of this game 
-    home_team_id= body.get("home_team")
-    if home_team_id is None:
-        failure_response("You did not enter the home team!", 400)
-
     # Checks the request body for the away team of this game 
     away_team_id = body.get("away_team")
     if away_team_id is None:
@@ -147,7 +140,6 @@ def create_game():
         sex=sex,
         date_time = date_time,
         location=location,
-        home_team=home_team,
         away_team=away_team,
         num_tickets=num_tickets
     )
@@ -184,7 +176,7 @@ def update_game(game_id):
         failure_response("You did not enter a location!", 400)
 
     # Checks the request body for the competing teams of this game 
-    teams = body.get("teams")
+    away_team = body.get("away_team")
     if teams is None:
         failure_response("You did not enter the competing teams!", 400)
 
@@ -197,12 +189,10 @@ def update_game(game_id):
     game.sport = sport
     game.sex = sex
     game.location = location
-    game.teams = teams
+    game.away_team = away_team
     game.num_tickets = num_tickets
 
-    db.session.add(game)
     db.session.commit()
-
     return json.dumps(game.serialize())
 
 @app.route("/games/<int:game_id>/", methods=["DELETE"]) # DELETE: Delete a specific game from database
