@@ -26,8 +26,12 @@ class Game(db.Model):
     # teams = db.Column(db.PickleType)
     # XXX: May not be best method of storing this information
 
-    home_team = db.Column(db.String, nullable=False)
-    away_team = db.Column(db.String, nullable=False)
+    home_team_id = db.Column(db.Integer, db.ForeignKey('school.id'), nullable=False)
+    away_team_id = db.Column(db.Integer, db.ForeignKey('school.id'), nullable=False)
+
+    home_team = db.relationship('School', foreign_keys=[home_team_id])
+    away_team = db.relationship('School', foreign_keys=[away_team_id])
+
     num_tickets = db.Column(db.Integer, nullable=False)
     sold_out = db.Column(db.Boolean, nullable=False, default=False)
     tickets = db.relationship("Ticket", cascade="delete")
@@ -111,6 +115,34 @@ class Ticket(db.Model):
         """
         self.user_id = kwargs.get("user_id")
         self.game_id = kwargs.get("game_id")
+
+    def simple_serialize(self):
+        """
+        Serliaze a ticket object (
+        """
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "game_id": self.game_id
+        }
+
+class School(db.Model):
+    __tablename__ = "school"
+    # Name, Image of 
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String, nullable=False)
+    logo_image = db.Column(db.String, nullable=False)
+
+    
+    home_games = db.relationship('Game', backref='home_team', foreign_keys='[Game.home_team_id]')
+    away_games = db.relationship('Game', backref='away_team', foreign_keys='[Game.away_team_id]')
+
+    def __init__(self, **kwargs):
+        """
+        Initialize a Ticket object 
+        """
+        self.name = kwargs.get("name")
+        self.logoImage = kwargs.get("logo_image")
 
     def simple_serialize(self):
         """
