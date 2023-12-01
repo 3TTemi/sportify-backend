@@ -47,7 +47,7 @@ class Game(db.Model):
         self.sex = kwargs.get("sex")
         self.date_time = kwargs.get("date_time")
         self.location =kwargs.get("location") # No need to include default value, throw error instead
-        self.home_team = kwargs.get("home_team")
+        #self.home_team = kwargs.get("home_team")
         self.away_team = kwargs.get("away_team")
         self.num_tickets = kwargs.get("num_tickets") # When initializing a game, the amount of tickets remaining should never be 0 (there would be no attendees)
 
@@ -151,7 +151,7 @@ class School(db.Model):
         self.name = kwargs.get("name")
         self.logo_image = kwargs.get("logo_image")
 
-    def simple_serialize(self):
+    def serialize(self):
         """
         Serliaze a school object (
         """
