@@ -48,7 +48,7 @@ def base():
     return success_response({"games": games})
 
 
-@app.route("/games/<int:game_id>/") # GET: Get game by identifier
+@app.route("/games/<int:game_id>/") # GET: Get game by id number
 def get_specific_game(game_id):
     """
     Endpoint that returns the game with game id 'game_id'
@@ -139,6 +139,54 @@ def create_game():
     db.session.add(new_game)
     db.session.commit()
     return success_response(new_game.serialize(), 201)
+
+@app.route("/games/<id:identifier>") # POST: Update a game's information
+def update_game(identifier):
+    """
+    Endpoint that updates the information of an existing game with game id 'identifier'
+    """
+    game = Game.query.filter_by(id=identifier)
+    if game is None:
+        return failure_response("Game not found!")
+    
+    body = json.loads(request.data)
+
+    # Checks the request body for the sport of this game 
+    sport = body.get("sport")
+    if sport is None:
+        failure_response("You did not enter the game's sport!", 400)
+
+    # Checks the request body for the competing sexes of this game 
+    sex = body.get("sex")
+    if sex is None:
+        failure_response("You did not enter the relevant sexes!", 400)
+
+    # Checks the request body for the location of this game 
+    location = body.get("location")
+    if location is None:
+        failure_response("You did not enter a location!", 400)
+
+    # Checks the request body for the competing teams of this game 
+    teams = body.get("teams")
+    if teams is None:
+        failure_response("You did not enter the competing teams!", 400)
+
+    # Checks the request body for the number of tickets available for this game 
+    num_tickets = body.get("num_tickets")
+    if num_tickets is None:
+        failure_response("You did not enter the amount of available tickets!", 400)
+
+    # Update the values of the object with the request data
+    game.sport = sport
+    game.sex = sex
+    game.location = location
+    game.teams = teams
+    game.num_tickets = num_tickets
+
+    db.session.add(game)
+    db.session.commit()
+
+    return json.dumps(game.serialize())
 
 @app.route("/games/<int:game_id>/", methods=["DELETE"]) # DELETE: Delete a specific game from database
 def delete_game(game_id):
