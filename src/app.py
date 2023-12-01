@@ -3,6 +3,8 @@ import json
 from db import Game
 from db import User
 from db import Ticket
+from db import School
+
 from db import db
 
 from flask import request
@@ -304,6 +306,41 @@ def update_funds(user_id):
     db.session.add(user)
     db.commit()
 
+
+@app.route("/school/", methods=["POST"])
+def create_school():
+    """
+    Endpoint that creates a inserts a school object into database
+    """
+    body = json.loads(request.data)
+
+    name = body.get("name")
+    if name is None:
+        failure_response("You did not enter the name of the school!")
+
+    logo_image = body.get("logo_image")
+    if logo_image is None:
+        failure_response("You did not neter a logo image for the school!")
+
+    new_school = School(
+        name=name,
+        logo_image=logo_image,
+    )
+
+    db.session.add(new_school)
+    db.session.commit()
+    return success_response(new_game.serialize(), 201)
+
+
+@app.route("/games/<int:school_id>/") # GET: Get school by id number
+def get_school(school_id):
+    """
+    Endpoint that returns the school with school id 'school_id'
+    """
+    school = School.query.filter_by(id=school_id).first()
+    if school is None:
+        return failure_response("School not found!")
+    return success_response(school.serialize())
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
