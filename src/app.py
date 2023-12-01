@@ -85,6 +85,8 @@ def get_game(identifier): # GET: Get all games that share a given quality (mens,
 
     return success_response({f"{identifier} games":games})
 
+# Be able to choose between mens and womens 
+
 @app.route("/games/", methods=["POST"]) # POST: Insert game into database
 def create_game():
     """
@@ -112,19 +114,26 @@ def create_game():
         failure_response("You did not enter a location!", 400)
 
     # Checks the request body for the home team of this game 
-    home_team = body.get("home_team")
-    if home_team is None:
+    home_team_id= body.get("home_team")
+    if home_team_id is None:
         failure_response("You did not enter the home team!", 400)
 
     # Checks the request body for the away team of this game 
-    away_team = body.get("away_team")
-    if away_team is None:
+    away_team_id = body.get("away_team")
+    if away_team_id is None:
         failure_response("You did not enter the away team!", 400)
 
     # Checks the request body for the number of tickets available for this game 
     num_tickets = body.get("num_tickets")
     if num_tickets is None:
         failure_response("You did not enter the amount of available tickets!", 400)
+
+    home_team = School.query.get(home_team_id)
+    if home_team is None:
+        failure_response("Teams inputted Incorrectly!", 400)
+    away_team = School.query.get(away_team_id)
+    if away_team_id is None:
+        failure_response("Teams inputted Incorrectly!", 400)
 
     # Creates Game object
     new_game = Game(
