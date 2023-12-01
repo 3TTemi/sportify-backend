@@ -261,7 +261,7 @@ def get_user(user_id):
 
     return success_response({"user":user.serialize()})
 
-@app.route("/user/<int:user_id>", methods=["POST"]) # POST: Update user username
+@app.route("/user/<int:user_id>/username/", methods=["POST"]) # POST: Update user username
 def update_username(user_id):
     """
     Endpoint that changes an existing user's usersname and returns updated user information 
@@ -275,7 +275,7 @@ def update_username(user_id):
     user.username = new_username
     db.commit()
 
-@app.route("/user/<int:user_id>", methods=["POST"]) # POST: Update user password
+@app.route("/user/<int:user_id>/password/", methods=["POST"]) # POST: Update user password
 def update_password(user_id):
     """
     Endpoint that changes an existing user's usersname and returns updated user information 
@@ -289,7 +289,7 @@ def update_password(user_id):
     user.password = new_password
     db.commit()
 
-@app.route("/user/<int:user_id>", methods=["POST"]) # POST: Update user funds
+@app.route("/user/<int:user_id>/funds/", methods=["POST"]) # POST: Update user funds
 def update_funds(user_id):
     """
     Endpoint that increases or decreases the amount of funds a user client has on their account
@@ -301,7 +301,6 @@ def update_funds(user_id):
 
     new_balance = user.balance + update
     user.balance = new_balance
-
     db.commit()
 
 
