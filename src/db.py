@@ -134,20 +134,22 @@ class Ticket(db.Model):
 
 class School(db.Model):
     __tablename__ = "school"
-    # Name, Image of 
+    # Id's of schools will be fixed in database, creation of game only needs ids
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
     logo_image = db.Column(db.String, nullable=False)
 
-    home_games = db.relationship('Game', backref='home_team', foreign_keys='[Game.home_team_id]')
-    away_games = db.relationship('Game', backref='away_team', foreign_keys='[Game.away_team_id]')
+    home_games = db.relationship('Game', foreign_keys='[Game.home_team_id]')
+    away_games = db.relationship('Game', foreign_keys='[Game.away_team_id]')
+    # home_games = db.relationship('Game', backref='home_team', foreign_keys='[Game.home_team_id]')
+
 
     def __init__(self, **kwargs):
         """
         Initialize a school object 
         """
         self.name = kwargs.get("name")
-        self.logoImage = kwargs.get("logo_image")
+        self.logo_image = kwargs.get("logo_image")
 
     def simple_serialize(self):
         """
