@@ -130,7 +130,8 @@ def create_game():
         sex=sex,
         date_time = date_time,
         location=location,
-        teams=teams,
+        home_team=home_team,
+        away_team=away_team,
         num_tickets=num_tickets
     )
 
