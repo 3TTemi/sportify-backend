@@ -199,6 +199,48 @@ def delete_game(game_id):
     db.session.commit()
     return success_response(game.serialize())
 
+@app.route("/user/", methods=["POST"])
+def create_user():
+    """
+    Endpoint that allows client to create a user account
+    """
+    body = request.data
+
+    first_name = body.get("name")
+    if first_name is None:
+        failure_response("You did not enter your first name!")
+
+    last_name = body.get("name")
+    if last_name is None:
+        failure_response("You did not enter your last name!")
+
+    name = f"{first_name} {last_name}"
+
+    username = body.get("username")
+    if username is None:
+        failure_response("You did not enter your username!")
+
+    password = body.get("password")
+    if password is None:
+        failure_response("You did not enter your password!")
+
+    email = body.get("email")
+    if email is None:
+        failure_response("You did not enter your email!")
+
+    balance = body.get("balance", 0)
+
+    user = User(
+        first_name=first_name,
+        last_name=last_name,
+        username=username,
+        password=password,
+        email=email,
+        balance=balance
+    )
+
+    db.session.add(user)
+    db.session.commit()
 
 @app.route("/user/<int:user_id>") # GET: Get specific user by user id
 def get_user(user_id):
