@@ -87,7 +87,10 @@ class User(db.Model):
         """
         Initialize a user object 
         """
+        self.first_name = kwargs.get("first_name")
+        self.last_name = kwargs.get("last_name")
         self.username = kwargs.get("username", "")
+        self.password = kwargs.get("password")
         self.email = kwargs.get("email", "")
         self.balance = kwargs.get("balance", 0)
 
@@ -97,8 +100,11 @@ class User(db.Model):
         """
         return {
             "id": self.id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
             "username": self.username,
             "email": self.email,
+            # We do not return password for security purposes
             "balance": self.balance,
         }
 

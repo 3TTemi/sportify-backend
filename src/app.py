@@ -23,6 +23,7 @@ app.config["SQLALCHEMY_ECHO"] = True
 
 db.init_app(app)
 with app.app_context():
+    db.drop_all()
     db.create_all()
 
 # Generalized response formats
@@ -206,17 +207,15 @@ def create_user():
     """
     Endpoint that allows client to create a user account
     """
-    body = request.data
+    body = json.loads(request.data)
 
-    first_name = body.get("name")
+    first_name = body.get("first_name")
     if first_name is None:
         failure_response("You did not enter your first name!")
 
-    last_name = body.get("name")
+    last_name = body.get("last_name")
     if last_name is None:
         failure_response("You did not enter your last name!")
-
-    name = f"{first_name} {last_name}"
 
     username = body.get("username")
     if username is None:
@@ -243,6 +242,8 @@ def create_user():
 
     db.session.add(user)
     db.session.commit()
+
+    return success_response(user.simple_serialize())
 
 @app.route("/user/<int:user_id>") # GET: Get specific user by user id
 def get_user(user_id):
