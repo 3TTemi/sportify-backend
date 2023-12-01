@@ -63,8 +63,8 @@ class Game(db.Model):
             # Converting date type object in database to stirng format to serialize 
             "date_time": self.date_time.strftime('%Y-%m-%d %H:%M:%S'),
             "location": self.location,
-            "home_team": self.home_team,
-            "away_team": self.away_team,
+            "home_team": self.home_team.simple_serialize(),
+            "away_team": self.away_team.simple_serialize(),
             "num_tickets": self.num_tickets,
             "tickets":  [t.simple_serialize() for t in self.tickets],
             "users_attending":  [u.simple_serialize() for u in self.users_attending]
@@ -133,23 +133,22 @@ class School(db.Model):
     name = db.Column(db.String, nullable=False)
     logo_image = db.Column(db.String, nullable=False)
 
-    
     home_games = db.relationship('Game', backref='home_team', foreign_keys='[Game.home_team_id]')
     away_games = db.relationship('Game', backref='away_team', foreign_keys='[Game.away_team_id]')
 
     def __init__(self, **kwargs):
         """
-        Initialize a Ticket object 
+        Initialize a school object 
         """
         self.name = kwargs.get("name")
         self.logoImage = kwargs.get("logo_image")
 
     def simple_serialize(self):
         """
-        Serliaze a ticket object (
+        Serliaze a school object (
         """
         return {
             "id": self.id,
-            "user_id": self.user_id,
-            "game_id": self.game_id
+            "name": self.name,
+            "logo_image": self.logo_image
         }
