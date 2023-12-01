@@ -47,7 +47,14 @@ def base():
     Endpoint that returns all the games stored in the database
     """
     games = [g.serialize() for g in Game.query.all()]
+
+    # Filter by current time is greater than time of the object
+    # current_games = [g.serialize() for g in Game.query.filter(datetime.datetime.now() > g.date_time).all()]
+    # upcoming_games = [g.serialize() for g in Game.query.filter(datetime.datetime.now() < g.date_time).all()]
+
     return success_response({"games": games})
+    # return success_response({"games": current_games})
+
 
 
 @app.route("/games/<int:game_id>/") # GET: Get game by id number
@@ -252,7 +259,7 @@ def create_user():
     db.session.add(user)
     db.session.commit()
 
-    return success_response(user.simple_serialize())
+    return success_response(user.serialize())
 
 @app.route("/user/<int:user_id>") # GET: Get specific user by user id
 def get_user(user_id):
@@ -331,7 +338,7 @@ def create_school():
 
     db.session.add(new_school)
     db.session.commit()
-    return success_response(new_game.serialize(), 201)
+    return success_response(new_school.serialize(), 201)
 
 
 @app.route("/games/<int:school_id>/") # GET: Get school by id number
