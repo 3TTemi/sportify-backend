@@ -329,7 +329,7 @@ def create_school():
 
     db.session.add(new_school)
     db.session.commit()
-    return success_response(new_game.serialize(), 201)
+    return success_response(new_school.simple_serialize(), 201)
 
 
 @app.route("/games/<int:school_id>/") # GET: Get school by id number
@@ -340,7 +340,7 @@ def get_school(school_id):
     school = School.query.filter_by(id=school_id).first()
     if school is None:
         return failure_response("School not found!")
-    return success_response(school.serialize())
+    return success_response(school.simple_serialize())
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
