@@ -19,20 +19,14 @@ class Game(db.Model):
     location = db.Column(db.String, nullable=False)
     date_time = db.Column(db.DateTime, nullable=False)
 
-    
-    # """
-    # PickleType allows us to use tuple as datatpe (automatically serializes and deserializaes for databse) 
-    # """
-    # teams = db.Column(db.PickleType)
-    # XXX: May not be best method of storing this information
-
     home_team_id = db.Column(db.Integer, db.ForeignKey('school.id'), nullable=False)
     away_team_id = db.Column(db.Integer, db.ForeignKey('school.id'), nullable=False)
 
     home_team = db.relationship('School', foreign_keys=[home_team_id])
     away_team = db.relationship('School', foreign_keys=[away_team_id])
 
-    num_tickets = db.Column(db.Integer, nullable=False)
+    num_tickets = db.Column(db.Integer, nullable=False) # Represents number of available tickets, not necessarily total tickets
+    ticket_price = db.Column(db.Integer, nullable = False)
     sold_out = db.Column(db.Boolean, nullable=False, default=False)
     tickets = db.relationship("Ticket", cascade="delete")
 
@@ -112,15 +106,17 @@ class User(db.Model):
 class Ticket(db.Model):
     __tablename__ = "ticket"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    cost = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     game_id = db.Column(db.Integer, db.ForeignKey("game.id"), nullable=False)
 
     def __init__(self, **kwargs):
         """
         Initialize a Ticket object 
         """
-        self.user_id = kwargs.get("user_id")
+        self.user_id = kwargs.get("user_id", None)
         self.game_id = kwargs.get("game_id")
+        self.cost = kwargs.get("cost")
 
     def serialize(self):
         """
@@ -128,6 +124,7 @@ class Ticket(db.Model):
         """
         return {
             "id": self.id,
+            "cost": self.cost,
             "user_id": self.user_id,
             "game_id": self.game_id
         }
