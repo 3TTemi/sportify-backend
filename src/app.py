@@ -21,7 +21,6 @@ app.config["SQLALCHEMY_ECHO"] = True
 
 db.init_app(app)
 with app.app_context():
-    db.drop_all()
     db.create_all()
 
 # Generalized response formats
@@ -140,12 +139,12 @@ def create_game():
     db.session.commit()
     return success_response(new_game.serialize(), 201)
 
-@app.route("/games/<id:identifier>") # POST: Update a game's information
-def update_game(identifier):
+@app.route("/games/<int:game_id>/", methods=["POST"]) # POST: Update a game's information
+def update_game(game_id):
     """
     Endpoint that updates the information of an existing game with game id 'identifier'
     """
-    game = Game.query.filter_by(id=identifier)
+    game = Game.query.filter_by(id=game_id).first()
     if game is None:
         return failure_response("Game not found!")
     
