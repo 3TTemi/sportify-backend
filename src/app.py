@@ -127,6 +127,8 @@ def create_game():
     if num_tickets is None:
         failure_response("You did not enter the amount of available tickets!", 400)
 
+    ticket_price = body.get("ticket_price", 0)
+
     home_team = School.query.get(home_team_id)
     if home_team is None:
         failure_response("Teams inputted Incorrectly!", 400)
@@ -141,8 +143,15 @@ def create_game():
         date_time = date_time,
         location=location,
         away_team=away_team,
-        num_tickets=num_tickets
+        num_tickets=num_tickets # Note: Represents number of available tickets, not necessarily number of total tickets 
     )
+
+    for x in range(num_tickets):
+        ticket = Ticket(
+            cost=ticket_price,
+            game_id=new_game.id
+        )
+        db.session.add(ticket)
 
     # Adds and fixes new Game object into database
     db.session.add(new_game)
@@ -303,6 +312,39 @@ def update_funds(user_id):
     user.balance = new_balance
     db.commit()
 
+@app.route("/user/<int:user_id>/tickets/", methods=["POST"]) # POST: Purchase tickets
+def purchase_tickets(user_id):
+    """
+    Endpoint that enables client to purchase tickets
+    """
+    body = request.data
+    game_id = body.get("game_id")
+    
+    game = Game.query.filter_by(game_id).first()
+    if game is None:
+        failure_response("User not found!")
+
+    user = User.query.filter_by(user_id).first()
+    if user is None: # Note: May not be necessary, as this endpoint would only be accessed from an existing user's page
+        failure_response("User not found!")
+
+    if game.num_tickets == 0:
+        failure_response("Game Sold Out!")
+    else:
+        ticket = Ticket.query.filter_by(user_id = None).first()
+        ticket_price = ticket.cost
+
+        user_balance = user.balance
+
+        if user_balance - ticket_price < 0:
+            failure_response("You do not have the funds to purchase this ticket!")
+        
+        else:
+            user.balance = user_balance - ticket_price
+            ticket.user_id = user.id
+            game.num_tickets -= 1
+
+    db.session.commit()
 
 @app.route("/school/", methods=["POST"])
 def create_school():
