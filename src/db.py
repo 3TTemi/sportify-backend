@@ -47,7 +47,7 @@ class Game(db.Model):
         self.sex = kwargs.get("sex")
         self.date_time = kwargs.get("date_time")
         self.location =kwargs.get("location") # No need to include default value, throw error instead
-        #self.home_team = kwargs.get("home_team")
+        self.home_team = kwargs.get("home_team")
         self.away_team = kwargs.get("away_team")
         self.num_tickets = kwargs.get("num_tickets") # When initializing a game, the amount of tickets remaining should never be 0 (there would be no attendees)
 
@@ -63,11 +63,11 @@ class Game(db.Model):
             # Converting date type object in database to stirng format to serialize 
             "date_time": self.date_time.strftime('%Y-%m-%d %H:%M:%S'),
             "location": self.location,
-            "home_team": self.home_team.simple_serialize(),
-            "away_team": self.away_team.simple_serialize(),
+            "home_team": self.home_team.serialize(),
+            "away_team": self.away_team.serialize(),
             "num_tickets": self.num_tickets,
-            "tickets":  [t.simple_serialize() for t in self.tickets],
-            "users_attending":  [u.simple_serialize() for u in self.users_attending]
+            "tickets":  [t.serialize() for t in self.tickets],
+            "users_attending":  [u.serialize() for u in self.users_attending]
         }
 
 class User(db.Model):
@@ -94,7 +94,7 @@ class User(db.Model):
         self.email = kwargs.get("email", "")
         self.balance = kwargs.get("balance", 0)
 
-    def simple_serialize(self):
+    def serialize(self):
         """
         Serliaze a user object without the courses field
         """
@@ -122,7 +122,7 @@ class Ticket(db.Model):
         self.user_id = kwargs.get("user_id")
         self.game_id = kwargs.get("game_id")
 
-    def simple_serialize(self):
+    def serialize(self):
         """
         Serliaze a ticket object (
         """
