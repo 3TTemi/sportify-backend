@@ -26,7 +26,7 @@ class Game(db.Model):
     away_team = db.relationship('School', foreign_keys=[away_team_id])
 
     num_tickets = db.Column(db.Integer, nullable=False) # Represents number of available tickets, not necessarily total tickets
-    ticket_price = db.Column(db.Integer, nullable = False)
+    # ticket_price = db.Column(db.Integer, nullable = False)
     sold_out = db.Column(db.Boolean, nullable=False, default=False)
     tickets = db.relationship("Ticket", cascade="delete")
 
