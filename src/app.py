@@ -65,7 +65,7 @@ def get_specific_game(game_id):
 def get_game(identifier): # GET: Get all games that share a given quality (mens, womens, basketball, etc.) 
     """
     Endpoint that returns all the games that can be identified by a given identifier
-    """
+    """ 
     group = None # Early declaration (scope conscious) 
     for id in options:
          for x in options[id]:
@@ -80,7 +80,7 @@ def get_game(identifier): # GET: Get all games that share a given quality (mens,
         games = [g.serialize() for g in Game.query.filter_by(location=identifier, sold_out=False).all()]
     if group == "sex":
         games = [g.serialize() for g in Game.query.filter_by(sex=identifier, sold_out=False).all()]
-
+    
     # TODO: Implement games list for specific times/dates, for specific teams, and for those that still have remaining tickets 
 
     return success_response({f"{identifier} games":games})
