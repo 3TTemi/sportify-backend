@@ -41,7 +41,7 @@ class Game(db.Model):
         self.sex = kwargs.get("sex")
         self.date_time = kwargs.get("date_time")
         self.location =kwargs.get("location") # No need to include default value, throw error instead
-        # self.home_team = kwargs.get("home_team") No need to include home team, home team is always Cornell
+        self.home_team = kwargs.get("home_team") # Leave Home Team Variable, just set default to cornell (Only Serialize away team)
         self.away_team = kwargs.get("away_team")
         self.num_tickets = kwargs.get("num_tickets") # When initializing a game, the amount of tickets remaining should never be 0 (there would be no attendees)
 
@@ -58,7 +58,9 @@ class Game(db.Model):
             "date_time": self.date_time.strftime('%Y-%m-%d %H:%M:%S'),
             "location": self.location,
             # "home_team": self.home_team.serialize(),
-            "away_team": self.away_team.serialize(),
+            # "away_team": self.away_team.serialize(),
+            "away_team_logo": self.away_team.logo_image,
+            "away_team_name": self.away_team.name,
             "num_tickets": self.num_tickets,
             "tickets":  [t.serialize() for t in self.tickets],
             "users_attending":  [u.serialize() for u in self.users_attending]
