@@ -277,9 +277,6 @@ def update_username(user_id):
         failure_response("User not found!")
 
     user.username = new_username
-
-    # TODO: Verify if this truly exchanges a user's old username with the new one, of it this creates another user with the new username
-    db.session.add(user)
     db.commit()
 
 @app.route("/user/<int:user_id>", methods=["POST"]) # POST: Update user password
@@ -294,9 +291,6 @@ def update_password(user_id):
         failure_response("User not found!")
 
     user.password = new_password
-
-    # TODO: Verify if this truly exchanges a user's old username with the new one, or if it this creates another user with the new username
-    db.session.add(user)
     db.commit()
 
 @app.route("/user/<int:user_id>", methods=["POST"]) # POST: Update user funds
@@ -312,8 +306,6 @@ def update_funds(user_id):
     new_balance = user.balance + update
     user.balance = new_balance
 
-    # TODO: Verify if this truly changes a user's current balance, or if this creates another user with the new balance
-    db.session.add(user)
     db.commit()
 
 
@@ -339,7 +331,7 @@ def create_school():
 
     db.session.add(new_school)
     db.session.commit()
-    return success_response(new_school.simple_serialize(), 201)
+    return success_response(new_game.serialize(), 201)
 
 
 @app.route("/games/<int:school_id>/") # GET: Get school by id number
@@ -350,7 +342,7 @@ def get_school(school_id):
     school = School.query.filter_by(id=school_id).first()
     if school is None:
         return failure_response("School not found!")
-    return success_response(school.simple_serialize())
+    return success_response(school.serialize())
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
