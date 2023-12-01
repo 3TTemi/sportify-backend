@@ -23,7 +23,7 @@ app.config["SQLALCHEMY_ECHO"] = True
 
 db.init_app(app)
 with app.app_context():
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
 
 # Generalized response formats
@@ -399,6 +399,15 @@ def delete_school(school_id):
     db.session.delete(school)
     db.session.commit()
     return success_response(school.serialize())
+
+@app.route("/school/") 
+def return_schools():
+    """
+    Endpoint that returns all the schools stored in the database
+    """
+    schools = [s.serialize() for s in School.query.all()]
+
+    return success_response({"schools": schools})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)

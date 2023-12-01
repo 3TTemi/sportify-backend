@@ -1,8 +1,6 @@
 version: "3"
 
 services:
-  pa6:
-    image: "cejiogu/pa6:v1"
-    env_file: .env
+  sportify:
+    image: 3ttemi/sportify
     ports:
-      - "8000:8000"
