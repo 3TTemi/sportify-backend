@@ -14,7 +14,28 @@ _Sportify_ is an API that allows its clients to:
 - Purchase tickets for one or more games
 
 ## How to Use 
-### GET: Get all games `/games/`
+### GET: Get all games  `/`, `/games/`
+Response:
+```
+<HTTP STATUS CODE 200>
+{
+    "games": [
+        {
+            "id": <GAME ID>
+            "sport": <SPORT OF GAME>
+            "sex": <SEX OF GAME>
+            "date-time": <DATE-TIME OF GAME>
+            "location": <LOCATION OF GAME>
+            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>
+            "away_team_name": <NAME OF AWAY TEAM OF GAME>
+            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>
+            "tickets": [<SERIALIZED TICKET>, ...]
+            "users_attending": [<SERIALIZED USER>, ...]
+        },
+    ]
+}
+```
+
 ### GET: Get all games by game id `/games/{game id}/`
 ### GET: Get all games by identifier `/games/{identifier}/`
 ### POST: Insert game into database `/games/`
