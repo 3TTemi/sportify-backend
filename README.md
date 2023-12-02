@@ -15,7 +15,7 @@ _Sportify_ is an API that allows its clients to:
 
 ## How to Use 
 ### GET: Get all games  `/`, `/games/`
-Response:
+#### Response:
 ```json
 <HTTP STATUS CODE 200>
 {

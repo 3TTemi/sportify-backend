@@ -12,6 +12,7 @@ from flask import Flask
 
 from datetime import datetime 
 
+import users_dao
 import os
 
 app = Flask(__name__)
@@ -223,7 +224,7 @@ def delete_game(game_id):
     db.session.commit()
     return success_response(game.serialize())
 
-@app.route("/user/", methods=["POST"])
+@app.route("/user/signup/", methods=["POST"]) # POST: Insert user into database
 def create_user():
     """
     Endpoint that allows client to create a user account
@@ -265,6 +266,14 @@ def create_user():
     db.session.commit()
 
     return success_response(user.serialize())
+
+@app.route("/user/login/", methods=["POST"])
+def login():
+    pass
+
+@app.route("/user/logout/", methods=["POST"])
+def logout():
+    pass
 
 @app.route("/user/<int:user_id>") # GET: Get specific user by user id
 def get_user(user_id):
