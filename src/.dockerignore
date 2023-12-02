@@ -2,3 +2,4 @@ __pycache__
 venv
 cms.db
 *.env
+todo.db

@@ -23,6 +23,7 @@ app.config["SQLALCHEMY_ECHO"] = True
 
 db.init_app(app)
 with app.app_context():
+    # db.drop_all()
     db.create_all()
 
 # Generalized response formats
@@ -117,6 +118,11 @@ def create_game():
     if location is None:
         failure_response("You did not enter a location!", 400)
 
+
+    home_team_id = body.get("home_team")
+    if home_team_id is None:
+        failure_response("You did not enter the away team!", 400)
+
     # Checks the request body for the away team of this game 
     away_team_id = body.get("away_team")
     if away_team_id is None:
@@ -142,16 +148,17 @@ def create_game():
         sex=sex,
         date_time = date_time,
         location=location,
+        home_team=home_team,
         away_team=away_team,
         num_tickets=num_tickets # Note: Represents number of available tickets, not necessarily number of total tickets 
     )
 
-    for x in range(num_tickets):
-        ticket = Ticket(
-            cost=ticket_price,
-            game_id=new_game.id
-        )
-        db.session.add(ticket)
+    # for x in range(num_tickets):
+    #     ticket = Ticket(
+    #         cost=ticket_price,
+    #         game_id=new_game.id
+    #     )
+    #     db.session.add(ticket)
 
     # Adds and fixes new Game object into database
     db.session.add(new_game)
@@ -371,7 +378,7 @@ def create_school():
     return success_response(new_school.serialize(), 201)
 
 
-@app.route("/games/<int:school_id>/") # GET: Get school by id number
+@app.route("/school/<int:school_id>/") # GET: Get school by id number
 def get_school(school_id):
     """
     Endpoint that returns the school with school id 'school_id'
@@ -380,6 +387,27 @@ def get_school(school_id):
     if school is None:
         return failure_response("School not found!")
     return success_response(school.serialize())
+
+@app.route("/school/<int:school_id>/", methods=["DELETE"]) 
+def delete_school(school_id):
+    """
+    Endpoint for deleting a game by id
+    """
+    school = School.query.filter_by(id=school_id).first()
+    if school is None:
+        return failure_response("School not found!")
+    db.session.delete(school)
+    db.session.commit()
+    return success_response(school.serialize())
+
+@app.route("/school/") 
+def return_schools():
+    """
+    Endpoint that returns all the schools stored in the database
+    """
+    schools = [s.serialize() for s in School.query.all()]
+
+    return success_response({"schools": schools})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
