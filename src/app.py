@@ -333,7 +333,6 @@ def purchase_tickets(user_id):
     else:
         ticket = Ticket.query.filter_by(user_id = None).first()
         ticket_price = ticket.cost
-
         user_balance = user.balance
 
         if user_balance - ticket_price < 0:
@@ -345,6 +344,7 @@ def purchase_tickets(user_id):
             game.num_tickets -= 1
 
     db.session.commit()
+    success_response()
 
 @app.route("/school/", methods=["POST"])
 def create_school():

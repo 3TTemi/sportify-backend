@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime 
+from datetime import datetime
+from sqlalchemy.sql import func
 
 db = SQLAlchemy()
 
@@ -65,6 +66,9 @@ class Game(db.Model):
         }
 
 class User(db.Model):
+    """
+    User Model
+    """
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     first_name = db.Column(db.String, nullable=False)
@@ -99,11 +103,14 @@ class User(db.Model):
             "username": self.username,
             "email": self.email,
             # We do not return password for security purposes
-            "balance": self.balance,
+            "balance": self.balance
         }
 
 
 class Ticket(db.Model):
+    """
+    Ticket Model
+    """
     __tablename__ = "ticket"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     cost = db.Column(db.Integer, nullable=False)
@@ -126,6 +133,41 @@ class Ticket(db.Model):
             "id": self.id,
             "cost": self.cost,
             "user_id": self.user_id,
+            "game_id": self.game_id
+        }
+
+class Transactions(db.Model):
+    """
+    Transaction Model
+    """
+    __tablename__ = "ticket"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    timestamp = db.Column(db.DateTime(timezome=True), server_default=func.now())
+    user_id = db.Column(db.Integer, nullable=False),
+    game_id = db.Column(db.Integer, nullable=False),
+    amount = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, **kwargs):
+        """
+        Initialize a Transaction object 
+        """
+        self.user_id = kwargs.get("user_id")
+        self.game_id = kwargs.get("game_id")
+        self.amount = kwargs.get("amount")
+
+    def serialize(self):
+        """
+        Serialize a transaction object
+        """
+        user = User.query.filter_by(id=self.user_id).first()
+
+        return {
+            "id": self.id,
+            "amount": self.amount,
+            "user_id": self.user_id,
+            "user_firstname": user.first_name,
+            "user_lastname": user.last_name,
+            "timestamp": self.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
             "game_id": self.game_id
         }
 
