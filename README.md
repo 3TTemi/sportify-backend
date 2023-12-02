@@ -16,20 +16,20 @@ _Sportify_ is an API that allows its clients to:
 ## How to Use 
 ### GET: Get all games  `/`, `/games/`
 Response:
-```
+```json
 <HTTP STATUS CODE 200>
 {
     "games": [
         {
-            "id": <GAME ID>
-            "sport": <SPORT OF GAME>
-            "sex": <SEX OF GAME>
-            "date-time": <DATE-TIME OF GAME>
-            "location": <LOCATION OF GAME>
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>
-            "tickets": [<SERIALIZED TICKET>, ...]
+            "id": <GAME ID>,
+            "sport": <SPORT OF GAME>,
+            "sex": <SEX OF GAME>,
+            "date-time": <DATE-TIME OF GAME>,
+            "location": <LOCATION OF GAME>,
+            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
+            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
+            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
+            "tickets": [<SERIALIZED TICKET>, ...],
             "users_attending": [<SERIALIZED USER>, ...]
         },
     ]
