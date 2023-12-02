@@ -24,7 +24,6 @@ app.config["SQLALCHEMY_ECHO"] = True
 
 db.init_app(app)
 with app.app_context():
-    # db.drop_all()
     db.create_all()
 
 # Generalized response formats
@@ -65,7 +64,6 @@ def get_specific_game(game_id):
     if game is None:
         return failure_response("Game not found!")
     return success_response(game.serialize())
-
 
 @app.route("/games/<string:identifier>/")
 def get_game(identifier): # GET: Get all games that share a given quality (mens, womens, basketball, etc.) 
@@ -210,7 +208,7 @@ def update_game(game_id):
     game.num_tickets = num_tickets
 
     db.session.commit()
-    return json.dumps(game.serialize())
+    return json.dumps(game.serialize(), 201)
 
 @app.route("/games/<int:game_id>/", methods=["DELETE"]) # DELETE: Delete a specific game from database
 def delete_game(game_id):
@@ -265,7 +263,7 @@ def create_user():
     db.session.add(user)
     db.session.commit()
 
-    return success_response(user.serialize())
+    return success_response(user.serialize(), 201)
 
 @app.route("/user/login/", methods=["POST"])
 def login():
@@ -298,7 +296,8 @@ def update_username(user_id):
         failure_response("User not found!")
 
     user.username = new_username
-    db.commit()
+    db.session.commit()
+    return success_response(new_username, 201)
 
 @app.route("/user/<int:user_id>/password/", methods=["POST"]) # POST: Update user password
 def update_password(user_id):
@@ -312,7 +311,8 @@ def update_password(user_id):
         failure_response("User not found!")
 
     user.password = new_password
-    db.commit()
+    db.session.commit()
+    return success_responses(new_password, 201)
 
 @app.route("/user/<int:user_id>/funds/", methods=["POST"]) # POST: Update user funds
 def update_funds(user_id):
@@ -326,7 +326,8 @@ def update_funds(user_id):
 
     new_balance = user.balance + update
     user.balance = new_balance
-    db.commit()
+    db.session.commit()
+    return success_response(new_balance, 201)
 
 @app.route("/user/<int:user_id>/tickets/", methods=["POST"]) # POST: Purchase tickets
 def purchase_tickets(user_id):
@@ -335,6 +336,7 @@ def purchase_tickets(user_id):
     """
     body = request.data
     game_id = body.get("game_id")
+    ticket = None
     
     game = Game.query.filter_by(game_id).first()
     if game is None:
@@ -358,9 +360,9 @@ def purchase_tickets(user_id):
             user.balance = user_balance - ticket_price
             ticket.user_id = user.id
             game.num_tickets -= 1
-
+            
     db.session.commit()
-    success_response()
+    return success_response(ticket.serialize(), 201)
 
 @app.route("/school/", methods=["POST"])
 def create_school():
