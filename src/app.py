@@ -4,6 +4,8 @@ from db import Game
 from db import User
 from db import Ticket
 from db import School
+from db import Player
+
 
 from db import db
 
@@ -35,8 +37,8 @@ def failure_response(message, code=404):
 
 # Dictionary representing groups of possible identifiers client could use
 options = {
-    "sport": {"basketball", "baseball", "football", "soccer", "ice hockey", "tennis"},
-    "sex": {"mens", "womens", "unisex"},
+    "sport": {"Basketball", "Baseball", "Football", "Soccer", "Hockey", "Tennis"},
+    "sex": {"Mens", "Womens", "unisex"},
     "location": {"Schoellkopf Field, Jessup field"}
 }
 
@@ -48,12 +50,24 @@ def base():
     """
     games = [g.serialize() for g in Game.query.all()]
 
-    # Filter by current time is greater than time of the object
-    # current_games = [g.serialize() for g in Game.query.filter(datetime.datetime.now() > g.date_time).all()]
-    # upcoming_games = [g.serialize() for g in Game.query.filter(datetime.datetime.now() < g.date_time).all()]
+    return success_response(games)
 
-    return success_response({"games": games})
-    # return success_response({"games": current_games})
+@app.route("/games/current/")
+def returnCurrent():
+    """
+    Endpoint that returns all the games currently being played 
+    """
+    current_games = [g.serialize() for g in Game.query.filter(datetime.now() > Game.date_time).all()]
+    return success_response(current_games)
+
+@app.route("/games/future/")
+def returnFuture():
+    """
+    Endpoint that returns all the games to be played in the future
+    """
+    upcoming_games = [g.serialize() for g in Game.query.filter(datetime.now() < Game.date_time).all()]
+    return success_response(upcoming_games)
+
 
 @app.route("/games/<int:game_id>/") # GET: Get game by id number
 def get_specific_game(game_id):
@@ -65,8 +79,9 @@ def get_specific_game(game_id):
         return failure_response("Game not found!")
     return success_response(game.serialize())
 
-@app.route("/games/<string:identifier>/")
-def get_game(identifier): # GET: Get all games that share a given quality (mens, womens, basketball, etc.) 
+
+@app.route("/games/<string:identifier>/<string:time_state>/")
+def get_game(identifier,time_state): # GET: Get all games that share a given quality (mens, womens, basketball, etc.) 
     """
     Endpoint that returns all the games that can be identified by a given identifier
     """ 
@@ -77,17 +92,25 @@ def get_game(identifier): # GET: Get all games that share a given quality (mens,
                 group = id
                 group = group.strip() # Removes the quotations of the key string
     
-    # FIXME: Not efficient at all, there has to be a better way to do this
+    if time_state == "current":
+        time_condition = datetime.now() > Game.date_time
+
+    if time_state == "future":
+        time_condition = datetime.now() < Game.date_time
+
+    games = []
+        # FIXME: Not efficient at all, there has to be a better way to do this
     if group == "sport":
-        games = [g.serialize() for g in Game.query.filter_by(sport=identifier, sold_out=False).all()]
+        games = [g.serialize() for g in Game.query.filter_by(sport=identifier, sold_out=False).filter(time_condition).all()]
     if group == "location":
-        games = [g.serialize() for g in Game.query.filter_by(location=identifier, sold_out=False).all()]
+        games = [g.serialize() for g in Game.query.filter_by(location=identifier, sold_out=False).filter(time_condition).all()]
     if group == "sex":
-        games = [g.serialize() for g in Game.query.filter_by(sex=identifier, sold_out=False).all()]
-    
+        games = [g.serialize() for g in Game.query.filter_by(sex=identifier, sold_out=False).filter(time_condition).all()]
+
+
     # TODO: Implement games list for specific times/dates, for specific teams, and for those that still have remaining tickets 
 
-    return success_response({f"{identifier} games":games})
+    return success_response(games)
 
 # Be able to choose between mens and womens 
 
@@ -221,6 +244,16 @@ def delete_game(game_id):
     db.session.delete(game)
     db.session.commit()
     return success_response(game.serialize())
+
+
+@app.route("/games/", methods=["DELETE"]) # DELETE: Delete a specific game from database
+def delete_all_games():
+    """
+    Endpoint for deleting all gmaes
+    """
+    db.session.query(Game).delete()
+    db.session.commit()
+    return success_response([])
 
 @app.route("/user/signup/", methods=["POST"]) # POST: Insert user into database
 def create_user():
@@ -364,7 +397,7 @@ def purchase_tickets(user_id):
     db.session.commit()
     return success_response(ticket.serialize(), 201)
 
-@app.route("/school/", methods=["POST"])
+@app.route("/schools/", methods=["POST"])
 def create_school():
     """
     Endpoint that creates a inserts a school object into database
@@ -389,7 +422,7 @@ def create_school():
     return success_response(new_school.serialize(), 201)
 
 
-@app.route("/school/<int:school_id>/") # GET: Get school by id number
+@app.route("/schools/<int:school_id>/") # GET: Get school by id number
 def get_school(school_id):
     """
     Endpoint that returns the school with school id 'school_id'
@@ -399,7 +432,7 @@ def get_school(school_id):
         return failure_response("School not found!")
     return success_response(school.serialize())
 
-@app.route("/school/<int:school_id>/", methods=["DELETE"]) 
+@app.route("/schools/<int:school_id>/", methods=["DELETE"]) 
 def delete_school(school_id):
     """
     Endpoint for deleting a game by id
@@ -411,14 +444,114 @@ def delete_school(school_id):
     db.session.commit()
     return success_response(school.serialize())
 
-@app.route("/school/") 
+@app.route("/schools/") 
 def return_schools():
     """
     Endpoint that returns all the schools stored in the database
     """
     schools = [s.serialize() for s in School.query.all()]
 
-    return success_response({"schools": schools})
+    return success_response(schools)
+
+@app.route("/players/", methods=["POST"])  
+def create_player():
+    """
+    Endpoint for creating a new course
+    """
+    body = json.loads(request.data)
+    name = body.get('name')
+    age = body.get('age')
+    picture = body.get('picture')
+    bio = body.get('bio')
+
+    if name is None:
+        return failure_response("Not all player inputs given", 400)
+    if age is None:
+        return failure_response("Not all player inputs given", 400)
+    if picture is None:
+        return failure_response("Not all player inputs given", 400)
+    if bio is None:
+        return failure_response("Not all player inputs given", 400)
+   
+
+    new_player = Player(
+        name=name,
+        age=age,
+        picture=picture,
+        bio=bio
+    )
+
+    db.session.add(new_player)
+    db.session.commit()
+    return success_response(new_player.serialize(), 201)
+
+@app.route("/players/")  
+def get_players():
+    """
+    Endpoint for returning all players in datapase
+    """
+    players = [p.serialize() for p in Player.query.all()]
+
+    return success_response(players)
+
+@app.route("/players/home/<int:player_id>/<int:game_id>/", methods=["POST"])  
+def add_home_player(player_id,game_id):
+    """
+    Endpoint for adding a player to a team roster in a game
+    """
+
+    game = Game.query.filter_by(id=game_id).first()
+    if game is None:
+        return failure_response("Game not found!")
+
+    player = Player.query.filter_by(id=player_id).first()
+    if player is None:
+        return failure_response("Plauer not found!")
+
+    game.home_roster.append(player)
+
+    db.session.commit()
+
+
+    return success_response([h.serialize() for h in game.home_roster], 201)
+
+@app.route("/players/away/<int:player_id>/<int:game_id>/", methods=["POST"])  
+def add_away_player(player_id,game_id):
+    """
+    Endpoint for adding a player to a team roster in a game
+    """
+
+    game = Game.query.filter_by(id=game_id).first()
+    if game is None:
+        return failure_response("Game not found!")
+
+    player = Player.query.filter_by(id=player_id).first()
+    if player is None:
+        return failure_response("Plauer not found!")
+
+    game.away_roster.append(player)
+
+    db.session.commit()
+
+    return success_response([a.serialize() for a in game.away_roster], 201)
+
+@app.route("/players/", methods=["DELETE"]) 
+def delete_all_players():
+    """
+    Endpoint for deleting all games
+    """
+    db.session.query(Player).delete()
+    db.session.commit()
+    return success_response([])
+
+
+@app.route("/reset/", methods=["DELETE"])
+def reset_database():
+    db.drop_all()
+    db.create_all()
+
+    return success_response([])
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)

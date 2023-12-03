@@ -9,6 +9,17 @@ game_user_association = db.Table("game_user_association", db.Model.metadata,
     db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
     )
 
+home_roster_association = db.Table('home_roster',
+    db.Column('game_id', db.Integer, db.ForeignKey('game.id'), primary_key=True),
+    db.Column('player_id', db.Integer, db.ForeignKey('player.id'), primary_key=True)
+)
+
+# Association table for away roster
+away_roster_association = db.Table('away_roster',
+    db.Column('game_id', db.Integer, db.ForeignKey('game.id'), primary_key=True),
+    db.Column('player_id', db.Integer, db.ForeignKey('player.id'), primary_key=True)
+)
+
 class Game(db.Model):
     """
     Game Model 
@@ -31,6 +42,9 @@ class Game(db.Model):
     sold_out = db.Column(db.Boolean, nullable=False, default=False)
     tickets = db.relationship("Ticket", cascade="delete")
 
+    home_roster = db.relationship('Player', secondary=home_roster_association)
+    away_roster = db.relationship('Player', secondary=away_roster_association)
+
     # Link to the User table using association table 
     users_attending = db.relationship("User", secondary=game_user_association, back_populates="past_games")
 
@@ -46,6 +60,7 @@ class Game(db.Model):
         self.away_team = kwargs.get("away_team")
         self.num_tickets = kwargs.get("num_tickets") # When initializing a game, the amount of tickets remaining should never be 0 (there would be no attendees)
 
+
     def serialize(self):
         """
         Serialize Game Object
@@ -56,7 +71,7 @@ class Game(db.Model):
             "sex": self.sex,
             # "date_time": self.date_time,
             # Converting date type object in database to stirng format to serialize 
-            "date_time": self.date_time.strftime('%Y-%m-%d %H:%M:%S'),
+            "date_time": self.date_time.strftime("%Y-%m-%dT%H:%M:%S") + 'Z',
             "location": self.location,
             # "home_team": self.home_team.serialize(),
             # "away_team": self.away_team.serialize(),
@@ -64,7 +79,9 @@ class Game(db.Model):
             "away_team_name": self.away_team.name,
             "num_tickets": self.num_tickets,
             "tickets":  [t.serialize() for t in self.tickets],
-            "users_attending":  [u.serialize() for u in self.users_attending]
+            "users_attending":  [u.serialize() for u in self.users_attending],
+            "home_roster": [h.serialize() for h in self.home_roster],
+            "away_roster": [a.serialize() for a in self.away_roster]
         }
 
 class User(db.Model):
@@ -200,4 +217,36 @@ class School(db.Model):
             "id": self.id,
             "name": self.name,
             "logo_image": self.logo_image
+        }
+
+
+class Player(db.Model):
+    __tablename__ = "player"
+    # Id's of schools will be fixed in database, creation of game only needs ids
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String, nullable=False)
+    age = db.Column(db.String, nullable=False)
+    picture = db.Column(db.String, nullable=False)
+    bio = db.Column(db.String, nullable=False)
+
+    def __init__(self, **kwargs):
+        """
+        Initialize a school object 
+        """
+        self.name = kwargs.get("name")
+        self.age = kwargs.get("age")
+        self.picture = kwargs.get("picture")
+        self.bio = kwargs.get("bio")
+
+
+    def serialize(self):
+        """
+        Serliaze a school object (
+        """
+        return {
+            "id": self.id,
+            "name": self.name,
+            "age": self.age,
+            "picture": self.picture,
+            "bio": self.bio
         }
