@@ -27,7 +27,6 @@ app.config["SQLALCHEMY_ECHO"] = True
 
 db.init_app(app)
 with app.app_context():
-    db.drop_all()
     db.create_all()
 
 # Generalized response formats
@@ -109,9 +108,6 @@ def get_game(identifier,time_state): # GET: Get all games that share a given qua
     if group == "sex":
         games = [g.serialize() for g in Game.query.filter_by(sex=identifier, sold_out=False).filter(time_condition).all()]
 
-
-    # TODO: Implement games list for specific times/dates, for specific teams, and for those that still have remaining tickets 
-
     return success_response(games)
 
 # Be able to choose between mens and womens 
@@ -174,19 +170,24 @@ def create_game():
         location=location,
         home_team=home_team,
         away_team=away_team,
-        num_tickets=num_tickets # Note: Represents number of available tickets, not necessarily number of total tickets 
+        num_tickets=num_tickets, # Note: Represents number of available tickets, not necessarily number of total tickets 
+        ticket_price=ticket_price
     )
 
-    # for x in range(num_tickets):
-    #     ticket = Ticket(
-    #         cost=ticket_price,
-    #         game_id=new_game.id
-    #     )
-    #     db.session.add(ticket)
-
     # Adds and fixes new Game object into database
+
     db.session.add(new_game)
     db.session.commit()
+
+    for x in range(num_tickets):
+        ticket = Ticket(
+            cost=ticket_price,
+            game_id=new_game.id
+        )
+        db.session.add(ticket)
+
+    db.session.commit()
+
     return success_response(new_game.serialize(), 201)
 
 @app.route("/games/<int:game_id>/", methods=["POST"]) # POST: Update a game's information
@@ -224,6 +225,8 @@ def update_game(game_id):
     num_tickets = body.get("num_tickets")
     if num_tickets is None:
         failure_response("You did not enter the amount of available tickets!", 400)
+    
+    ticket_price = body.get("ticket_price")
 
     # Update the values of the object with the request data
     game.sport = sport
@@ -231,6 +234,7 @@ def update_game(game_id):
     game.location = location
     game.away_team = away_team
     game.num_tickets = num_tickets
+    game.ticket_price = ticket_price
 
     db.session.commit()
     return json.dumps(game.serialize(), 201)
