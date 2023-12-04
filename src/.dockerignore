@@ -3,3 +3,4 @@ venv
 cms.db
 *.env
 todo.db
+games.db

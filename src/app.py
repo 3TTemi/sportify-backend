@@ -5,6 +5,7 @@ from db import User
 from db import Ticket
 from db import School
 from db import Player
+import users_dao  
 
 
 from db import db
@@ -26,6 +27,7 @@ app.config["SQLALCHEMY_ECHO"] = True
 
 db.init_app(app)
 with app.app_context():
+    db.drop_all()
     db.create_all()
 
 # Generalized response formats
@@ -255,24 +257,97 @@ def delete_all_games():
     db.session.commit()
     return success_response([])
 
-@app.route("/user/signup/", methods=["POST"]) # POST: Insert user into database
-def create_user():
+@app.route("/user/register/", methods=["POST"]) # POST: Insert user into database
+def register_account():
     """
-    Endpoint that allows client to create a user account
+    Endpoint that allows client to create a user account (register)
     """
     body = json.loads(request.data)
 
-    first_name = body.get("first_name")
-    if first_name is None:
-        failure_response("You did not enter your first name!")
-
-    last_name = body.get("last_name")
-    if last_name is None:
-        failure_response("You did not enter your last name!")
-
     username = body.get("username")
     if username is None:
-        failure_response("You did not enter your username!")
+        return failure_response("You did not enter your username!")
+
+    password = body.get("password")
+    if password is None:
+        return failure_response("You did not enter your password!")
+
+    email = body.get("email")
+    if email is None:
+        return failure_response("You did not enter your email!")
+
+    balance = body.get("balance", 0)
+
+    created, user = users_dao.create_user(username,email,password)
+    if not created:
+        return failure_response("User already exists")
+
+    return success_response({
+        "session_token": user.session_token,
+        "session_expiration": str(user.session_expiration),
+        "refresh_token": user.refresh_token 
+    })
+
+
+
+def extract_token(request):
+    """
+    Helper function that extracts the token from the header of a request
+    """
+    auth_header = request.headers.get("Authorization")
+    if auth_header is None:
+        return False, failure_response("Missing Authorization Number")
+
+    #Bearer <token>
+    bearer_token = auth_header.replace("Bearer", "").strip()
+    if not bearer_token:
+        return False, failure_response("Missing Authorization Number")
+    return True, bearer_token
+
+@app.route("/session/", methods=["POST"])
+def refresh_session():
+    """
+    Endpoint for updating a user's session
+    """
+    success, response = extract_token(request)
+    if not success:
+        return response  
+    refresh_token = response
+
+    try:
+        user = users_dao.renew_session(refresh_token)
+    except Exception as e:
+        failure_response("Invalid Refresh Token")
+
+    return success_response({
+        "session_token": user.session_token,
+        "session_expiration": str(user.session_expiration),
+        "refresh_token": user.refresh_token 
+    })
+
+
+@app.route("/secret/", methods=["GET"])
+def secret_message():
+    """
+    Endpoint for verifying a session token and returning a secret message
+
+    In your project, you will use the same logic for any endpoint that needs 
+    authentication
+    """
+    success, response = extract_token(request)
+    if not success:
+        return response  
+    session_token = response
+    user = users_dao.get_user_by_session_token()
+    if not user or not user.verify_session_token(session_token):
+        return failure_response("Invalid session token")
+
+    return success_response(user.username)
+
+@app.route("/user/login/", methods=["POST"])
+def login():
+
+    body = json.loads(request.data)
 
     password = body.get("password")
     if password is None:
@@ -282,29 +357,34 @@ def create_user():
     if email is None:
         failure_response("You did not enter your email!")
 
-    balance = body.get("balance", 0)
-
-    user = User(
-        first_name=first_name,
-        last_name=last_name,
-        username=username,
-        password=password,
-        email=email,
-        balance=balance
-    )
-
-    db.session.add(user)
+    success, user = users_dao.verify_credentials(email, password)
+    if not success:
+        failure_response("Invalid credentials")
+    
+    user.renew_session()
     db.session.commit()
 
-    return success_response(user.serialize(), 201)
-
-@app.route("/user/login/", methods=["POST"])
-def login():
-    pass
+    return success_response({
+        "session_token": user.session_token,
+        "session_expiration": str(user.session_expiration),
+        "refresh_token": user.refresh_token 
+    })
 
 @app.route("/user/logout/", methods=["POST"])
 def logout():
-    pass
+    success, response = extract_token(request)
+    if not success:
+        return response  
+    session_token = response 
+
+    user = users_dao.get_user_by_session_token(session_token)
+    if not user or not user.verify_session_token(session_token):
+        return failure_response("Invalid session token")
+    user.session_expiration = datetime.now()
+    db.session.commit()
+    return success_response("You have been logged out")
+
+
 
 @app.route("/user/<int:user_id>") # GET: Get specific user by user id
 def get_user(user_id):
@@ -326,7 +406,7 @@ def update_username(user_id):
 
     user = User.query.filter_by(id=user_id).first()
     if user is None: # If the user is not in the database
-        failure_response("User not found!")
+        return failure_response("User not found!")
 
     user.username = new_username
     db.session.commit()
@@ -341,11 +421,11 @@ def update_password(user_id):
 
     user = User.query.filter_by(id=user_id).first()
     if user is None: # If the user is not in the database
-        failure_response("User not found!")
+        return failure_response("User not found!")
 
     user.password = new_password
     db.session.commit()
-    return success_responses(new_password, 201)
+    return success_response(new_password, 201)
 
 @app.route("/user/<int:user_id>/funds/", methods=["POST"]) # POST: Update user funds
 def update_funds(user_id):
@@ -355,7 +435,7 @@ def update_funds(user_id):
     update = request.data.get("balance")
     user = User.query.filter_by(id=user_id).first()
     if user is None: # If the user is not in the database
-        failure_response("User not found!")
+        return failure_response("User not found!")
 
     new_balance = user.balance + update
     user.balance = new_balance
@@ -369,30 +449,47 @@ def purchase_tickets(user_id):
     """
     body = request.data
     game_id = body.get("game_id")
+
+    success, response = extract_token(request)
+    if not success:
+        return response  
+    session_token = response
+
     ticket = None
     
     game = Game.query.filter_by(game_id).first()
     if game is None:
-        failure_response("User not found!")
+        return failure_response("User not found!")
 
     user = User.query.filter_by(user_id).first()
     if user is None: # Note: May not be necessary, as this endpoint would only be accessed from an existing user's page
-        failure_response("User not found!")
+        return failure_response("User not found!")
 
     if game.num_tickets == 0:
-        failure_response("Game Sold Out!")
+        return failure_response("Game Sold Out!")
     else:
         ticket = Ticket.query.filter_by(user_id = None).first()
         ticket_price = ticket.cost
         user_balance = user.balance
 
         if user_balance - ticket_price < 0:
-            failure_response("You do not have the funds to purchase this ticket!")
+            return failure_response("You do not have the funds to purchase this ticket!")
         
         else:
             user.balance = user_balance - ticket_price
             ticket.user_id = user.id
             game.num_tickets -= 1
+
+
+    success, response = extract_token(request)
+    if not success:
+        return response  
+    session_token = response
+    user = users_dao.get_user_by_session_token()
+    if not user or not user.verify_session_token(session_token):
+        return failure_response("Invalid session token")
+
+    return success_response(user.username)
             
     db.session.commit()
     return success_response(ticket.serialize(), 201)
@@ -406,11 +503,11 @@ def create_school():
 
     name = body.get("name")
     if name is None:
-        failure_response("You did not enter the name of the school!")
+        return failure_response("You did not enter the name of the school!")
 
     logo_image = body.get("logo_image")
     if logo_image is None:
-        failure_response("You did not neter a logo image for the school!")
+        return failure_response("You did not neter a logo image for the school!")
 
     new_school = School(
         name=name,

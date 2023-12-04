@@ -1,6 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+import datetime
 from sqlalchemy.sql import func
+import hashlib
+import os
+
+import bcrypt
+
 
 db = SQLAlchemy()
 
@@ -90,13 +95,18 @@ class User(db.Model):
     """
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    first_name = db.Column(db.String, nullable=False)
-    last_name = db.Column(db.String, nullable=False)
     username = db.Column(db.String, nullable=False)
-    password = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False)
+    # password = db.Column(db.String, nullable=False)
     balance = db.Column(db.Integer, nullable=False)
     tickets = db.relationship("Ticket", cascade="delete")
+
+    password_digest = db.Column(db.String, nullable=False)
+    session_token = db.Column(db.String, nullable=False, unique=True)
+    session_expiration = db.Column(db.DateTime, nullable=False)
+    refresh_token = db.Column(db.String, nullable=False, unique=True)
+
+
     # Link to the Game table using assocaiton table 
     past_games = db.relationship("Game", secondary=game_user_association, back_populates="users_attending")
 
@@ -104,12 +114,48 @@ class User(db.Model):
         """
         Initialize a user object 
         """
-        self.first_name = kwargs.get("first_name")
-        self.last_name = kwargs.get("last_name")
         self.username = kwargs.get("username", "")
-        self.password = kwargs.get("password")
         self.email = kwargs.get("email", "")
+        self.password_digest = bcrypt.hashpw(kwargs.get("password").encode("utf8"), bcrypt.gensalt(rounds=13))
         self.balance = kwargs.get("balance", 0)
+        self.renew_session()
+
+    def _urlsafe_base_64(self):
+        """
+        Randomly generates hashed tokens (used for session/update tokens)
+        """
+        return hashlib.sha1(os.urandom(64)).hexdigest()
+
+    def renew_session(self):
+        """
+        Renews the sessions, i.e.
+        1. Creates a new session token
+        2. Sets the expiration time of the session to be a day from now
+        3. Creates a new update token
+        """
+        self.session_token = self._urlsafe_base_64()
+        self.refresh_token = self._urlsafe_base_64()
+        self.session_expiration = datetime.datetime.now() + datetime.timedelta(days=5)
+
+
+    def verify_password(self, password):
+        """
+        Verifies the password of a user
+        """
+        return bcrypt.checkpw(password.encode("utf8"), self.password_digest)
+
+    def verify_session_token(self, session_token):
+        """
+        Verifies the session token of a user
+        """
+        return session_token == self.session_token and datetime.datetime.now() < self.session_expiration
+
+    def verify_refresh_token(self, refresh_token):
+        """
+        Verifies the update token of a user
+        """
+        return refresh_token == self.session_token
+
 
     def serialize(self):
         """
@@ -124,6 +170,7 @@ class User(db.Model):
             # We do not return password for security purposes
             "balance": self.balance
         }
+
 
 
 class Ticket(db.Model):
@@ -155,40 +202,40 @@ class Ticket(db.Model):
             "game_id": self.game_id
         }
 
-class Transactions(db.Model):
-    """
-    Transaction Model
-    """
-    __tablename__ = "ticket"
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    timestamp = db.Column(db.DateTime(timezome=True), server_default=func.now())
-    user_id = db.Column(db.Integer, nullable=False),
-    game_id = db.Column(db.Integer, nullable=False),
-    amount = db.Column(db.Integer, nullable=False)
+# class Transactions(db.Model):
+#     """
+#     Transaction Model
+#     """
+#     __tablename__ = "ticket"
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     timestamp = db.Column(db.DateTime(timezome=True), server_default=func.now())
+#     user_id = db.Column(db.Integer, nullable=False),
+#     game_id = db.Column(db.Integer, nullable=False),
+#     amount = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, **kwargs):
-        """
-        Initialize a Transaction object 
-        """
-        self.user_id = kwargs.get("user_id")
-        self.game_id = kwargs.get("game_id")
-        self.amount = kwargs.get("amount")
+#     def __init__(self, **kwargs):
+#         """
+#         Initialize a Transaction object 
+#         """
+#         self.user_id = kwargs.get("user_id")
+#         self.game_id = kwargs.get("game_id")
+#         self.amount = kwargs.get("amount")
 
-    def serialize(self):
-        """
-        Serialize a transaction object
-        """
-        user = User.query.filter_by(id=self.user_id).first()
+#     def serialize(self):
+#         """
+#         Serialize a transaction object
+#         """
+#         user = User.query.filter_by(id=self.user_id).first()
 
-        return {
-            "id": self.id,
-            "amount": self.amount,
-            "user_id": self.user_id,
-            "user_firstname": user.first_name,
-            "user_lastname": user.last_name,
-            "timestamp": self.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            "game_id": self.game_id
-        }
+#         return {
+#             "id": self.id,
+#             "amount": self.amount,
+#             "user_id": self.user_id,
+#             "user_firstname": user.first_name,
+#             "user_lastname": user.last_name,
+#             "timestamp": self.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+#             "game_id": self.game_id
+#         }
 
 class School(db.Model):
     __tablename__ = "school"
