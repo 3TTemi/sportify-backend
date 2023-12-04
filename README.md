@@ -9,9 +9,23 @@ Welcome to _Sportify_, your go-to app for staying updated on upcoming and curren
 
 _Sportify_ is an API that allows its clients to:
 -  Access a database storing Cornell University's home games, in which the client can view all current and future games or modify their search by selecting qualities that specific games might have in common (referred to as _identifiers_)
-- Create their own account or log into an existing account using an inputted username and password
-- Add funds to their account
+- Register, Login, and Login into an account using an inputted email and password
+- Edit the Configuration of the Account (Adding Funds, Changing Username)
 - Purchase tickets for one or more games
+
+Data Models:
+- Game Model, representing a sports match betweeen two universities
+- User Model, represening a user to login and view the available games
+- Ticket Model, representing a ticket to that is bought by a user for a specific sports game 
+- School Model, representing a university instituion that is participating in sports games 
+- Player Model, representing students that are apart of univierites sports roster
+
+Model Relationships:
+- Many-to-Many Relationship of Users and Games (Attending Users)
+- Many-to-Many Relationship ofGames and Players (Home Roster and Away Roster)
+- One-to-Many Relationship ofUser and Tickets
+- One-to-Many Relationship Game and Tickets
+- One-to-Many Relationship School and Games (Home and Away Games)
 
 ## How to Use 
 ### GET: Get all games  `/games/`
