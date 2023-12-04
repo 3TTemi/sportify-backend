@@ -122,170 +122,125 @@ _Sportify_ is an API that allows its clients to:
 
 ### POST: Insert game into database `/games/`
 ```json
-<HTTP STATUS CODE 200>
+<HTTP STATUS CODE 201>
+
 {
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
+    "id": <GAME ID>,
+    "sport": <SPORT OF GAME>,
+    "sex": <SEX OF GAME>,,
+    "date_time": <DATE-TIME OF GAME>,
+    "location": <LOCATION OF GAME>,
+    "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
+    "away_team_name": <NAME OF AWAY TEAM OF GAME>,
+    "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
+    "tickets": [<SERIALIZED TICKET>, ...],
+    "users_attending": [<SERIALIZED USER>, ...],
+    "home_roster": [<SERIALIZED PLayer>, ...],
+    "away_roster": [<SERIALIZED PLayer>, ...]
 }
+    
+
 ```
 
-### POST: Update a game's information `/games/{game id}/`
+### POST: Update a game's information with new variables `/games/{game id}/`
 ```json
-<HTTP STATUS CODE 200>
+<HTTP STATUS CODE 201>
+
 {
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
+    "id": <GAME ID>,
+    "sport": <SPORT OF GAME>,
+    "sex": <SEX OF GAME>,,
+    "date_time": <DATE-TIME OF GAME>,
+    "location": <LOCATION OF GAME>,
+    "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
+    "away_team_name": <NAME OF AWAY TEAM OF GAME>,
+    "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
+    "tickets": [<SERIALIZED TICKET>, ...],
+    "users_attending": [<SERIALIZED USER>, ...],
+    "home_roster": [<SERIALIZED PLayer>, ...],
+    "away_roster": [<SERIALIZED PLayer>, ...]
 }
+
 ```
 
 ### DELETE: Delete a specific game from database `/games/{game id}/`
 ```json
 <HTTP STATUS CODE 200>
+
 {
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
+    "id": <GAME ID>,
+    "sport": <SPORT OF GAME>,
+    "sex": <SEX OF GAME>,,
+    "date_time": <DATE-TIME OF GAME>,
+    "location": <LOCATION OF GAME>,
+    "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
+    "away_team_name": <NAME OF AWAY TEAM OF GAME>,
+    "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
+    "tickets": [<SERIALIZED TICKET>, ...],
+    "users_attending": [<SERIALIZED USER>, ...],
+    "home_roster": [<SERIALIZED PLayer>, ...],
+    "away_roster": [<SERIALIZED PLayer>, ...]
 }
+
+
 ```
 
 ### DELETE: Delete all games from database `/games/`
 ```json
 <HTTP STATUS CODE 200>
+
+[
 {
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
-}
+    "id": <GAME ID>,
+    "sport": <SPORT OF GAME>,
+    "sex": <SEX OF GAME>,,
+    "date_time": <DATE-TIME OF GAME>,
+    "location": <LOCATION OF GAME>,
+    "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
+    "away_team_name": <NAME OF AWAY TEAM OF GAME>,
+    "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
+    "tickets": [<SERIALIZED TICKET>, ...],
+    "users_attending": [<SERIALIZED USER>, ...],
+    "home_roster": [<SERIALIZED PLayer>, ...],
+    "away_roster": [<SERIALIZED PLayer>, ...]
+},
+
+// Other Games, Each as Json Objects 
+    { <Other Games ...> }
+]
+
 ```
 
 ### POST: Insert user into database `/user/register/`
 ```json
-<HTTP STATUS CODE 200>
+<HTTP STATUS CODE 201>
+
 {
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
+        "id": <USER ID>,
+        "username": <USER USERNAME>,
+        "email": <USER EMAIL>,
+        "balance": <USER BALANCE>
 }
+
 ```
 
-### POST: Updates user's session token `/session/`
+### POST: Refresh user's session token `/session/`
 ```json
 <HTTP STATUS CODE 200>
-{
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
+{       
+    "session_token": <USER SESSION TOKEN>,
+    "session_expiration": <DATE OF USER SESSION EXPIRATION>,
+    "refresh_token": <USER REFRESH TOKEN> 
 }
 ```
-
-### GET: Verify user's session token `/games/{game id}/`
-```json
-<HTTP STATUS CODE 200>
-{
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
-}
-```
-
 
 ### POST: Login user `/user/login/`
 ```json
 <HTTP STATUS CODE 200>
 {
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
+    "session_token": <USER SESSION TOKEN>,
+    "session_expiration": <DATE OF USER SESSION EXPIRATION>,
+    "refresh_token": <USER REFRESH TOKEN> 
 }
 ```
 
@@ -293,22 +248,7 @@ _Sportify_ is an API that allows its clients to:
 ### POST: Logout user `/user/logout/`
 ```json
 <HTTP STATUS CODE 200>
-{
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
-}
+""You have been logged out""
 ```
 
 ### GET: Get user by user id `/user/{user id}/`
@@ -334,85 +274,25 @@ _Sportify_ is an API that allows its clients to:
 
 ### POST: Update user username `user/{user id}/username/`
 ```json
-<HTTP STATUS CODE 200>
-{
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
+<HTTP STATUS CODE 201>
+<USER UPDATED USERNAME> 
 }
 ```
 
 ### POST: Update funds on user's account `/user/{user id}/funds/`
 ```json
-<HTTP STATUS CODE 200>
-{
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
-}
-```
-
-### POST: Update user funds `user/{user id}/funds/`
-```json
-<HTTP STATUS CODE 200>
-{
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
-}
+<HTTP STATUS CODE 201>
+<USER UPDATED BALANCE>
 ```
 
 ### POST: Purchase tickets `/user/{user id}/tickets/`
 ```json
-<HTTP STATUS CODE 200>
+<HTTP STATUS CODE 201>
 {
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
+    "id": <TICKKET ID>,
+    "cost": <TICKET COST>,
+    "user_id": <ID OF USER WHO PURCHASED TICKET>,
+    "game_id": <ID OF GAME TICKET IS ASSOCIATED WITH>
 }
 ```
 
@@ -420,20 +300,9 @@ _Sportify_ is an API that allows its clients to:
 ```json
 <HTTP STATUS CODE 201>
 {
-    "games": [
-        {
-            "id": <GAME ID>,
-            "sport": <SPORT OF GAME>,
-            "sex": <SEX OF GAME>,
-            "date-time": <DATE-TIME OF GAME>,
-            "location": <LOCATION OF GAME>,
-            "away_team_logo": <LOGO OF AWAY TEAM OF GAME>,
-            "away_team_name": <NAME OF AWAY TEAM OF GAME>,
-            "num_tickets": <NUMBER OF TICKET REMAINING FOR GAME>,
-            "tickets": [<SERIALIZED TICKET>, ...],
-            "users_attending": [<SERIALIZED USER>, ...]
-        },
-    ]
+    "id": <SCHOOL ID>,
+    "name": <SCHOOL NAME>,
+    "logo_image": <SCHOOL SPORTS LOGO>
 }
 ```
 
@@ -479,7 +348,7 @@ _Sportify_ is an API that allows its clients to:
 }
 ```
 
-### GET: Get all schools `/school/`
+### GET: Get all schools from database `/school/`
 ```json
 <HTTP STATUS CODE 200>
 {
