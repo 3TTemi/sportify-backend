@@ -326,24 +326,6 @@ def refresh_session():
     })
 
 
-@app.route("/secret/", methods=["GET"])
-def secret_message():
-    """
-    Endpoint for verifying a session token and returning a secret message
-
-    In your project, you will use the same logic for any endpoint that needs 
-    authentication
-    """
-    success, response = extract_token(request)
-    if not success:
-        return response  
-    session_token = response
-    user = users_dao.get_user_by_session_token()
-    if not user or not user.verify_session_token(session_token):
-        return failure_response("Invalid session token")
-
-    return success_response(user.username)
-
 @app.route("/user/login/", methods=["POST"])
 def login():
 
@@ -412,20 +394,6 @@ def update_username(user_id):
     db.session.commit()
     return success_response(new_username, 201)
 
-@app.route("/user/<int:user_id>/password/", methods=["POST"]) # POST: Update user password
-def update_password(user_id):
-    """
-    Endpoint that changes an existing user's usersname and returns updated user information 
-    """ 
-    new_password = request.data.get("password")
-
-    user = User.query.filter_by(id=user_id).first()
-    if user is None: # If the user is not in the database
-        return failure_response("User not found!")
-
-    user.password = new_password
-    db.session.commit()
-    return success_response(new_password, 201)
 
 @app.route("/user/<int:user_id>/funds/", methods=["POST"]) # POST: Update user funds
 def update_funds(user_id):
@@ -454,6 +422,10 @@ def purchase_tickets(user_id):
     if not success:
         return response  
     session_token = response
+    user = users_dao.get_user_by_session_token()
+    if not user or not user.verify_session_token(session_token):
+        return failure_response("Invalid session token")
+
 
     ticket = None
     
@@ -481,15 +453,6 @@ def purchase_tickets(user_id):
             game.num_tickets -= 1
 
 
-    success, response = extract_token(request)
-    if not success:
-        return response  
-    session_token = response
-    user = users_dao.get_user_by_session_token()
-    if not user or not user.verify_session_token(session_token):
-        return failure_response("Invalid session token")
-
-    return success_response(user.username)
             
     db.session.commit()
     return success_response(ticket.serialize(), 201)

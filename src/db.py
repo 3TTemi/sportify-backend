@@ -163,14 +163,10 @@ class User(db.Model):
         """
         return {
             "id": self.id,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
             "username": self.username,
             "email": self.email,
-            # We do not return password for security purposes
             "balance": self.balance
         }
-
 
 
 class Ticket(db.Model):
@@ -202,40 +198,40 @@ class Ticket(db.Model):
             "game_id": self.game_id
         }
 
-# class Transactions(db.Model):
-#     """
-#     Transaction Model
-#     """
-#     __tablename__ = "ticket"
-#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     timestamp = db.Column(db.DateTime(timezome=True), server_default=func.now())
-#     user_id = db.Column(db.Integer, nullable=False),
-#     game_id = db.Column(db.Integer, nullable=False),
-#     amount = db.Column(db.Integer, nullable=False)
+class Transactions(db.Model):
+    """
+    Transaction Model
+    """
+    __tablename__ = "ticket"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    timestamp = db.Column(db.DateTime(timezome=True), server_default=func.now())
+    user_id = db.Column(db.Integer, nullable=False),
+    game_id = db.Column(db.Integer, nullable=False),
+    amount = db.Column(db.Integer, nullable=False)
 
-#     def __init__(self, **kwargs):
-#         """
-#         Initialize a Transaction object 
-#         """
-#         self.user_id = kwargs.get("user_id")
-#         self.game_id = kwargs.get("game_id")
-#         self.amount = kwargs.get("amount")
+    def __init__(self, **kwargs):
+        """
+        Initialize a Transaction object 
+        """
+        self.user_id = kwargs.get("user_id")
+        self.game_id = kwargs.get("game_id")
+        self.amount = kwargs.get("amount")
 
-#     def serialize(self):
-#         """
-#         Serialize a transaction object
-#         """
-#         user = User.query.filter_by(id=self.user_id).first()
+    def serialize(self):
+        """
+        Serialize a transaction object
+        """
+        user = User.query.filter_by(id=self.user_id).first()
 
-#         return {
-#             "id": self.id,
-#             "amount": self.amount,
-#             "user_id": self.user_id,
-#             "user_firstname": user.first_name,
-#             "user_lastname": user.last_name,
-#             "timestamp": self.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-#             "game_id": self.game_id
-#         }
+        return {
+            "id": self.id,
+            "amount": self.amount,
+            "user_id": self.user_id,
+            "user_firstname": user.first_name,
+            "user_lastname": user.last_name,
+            "timestamp": self.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            "game_id": self.game_id
+        }
 
 class School(db.Model):
     __tablename__ = "school"
